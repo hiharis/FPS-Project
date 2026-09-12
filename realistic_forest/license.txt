@@ -1,0 +1,8 @@
+Model Information:
+* title:	Realistic forest
+* source:	https://sketchfab.com/3d-models/realistic-forest-26d5693b975a481284dec4e2a61d06da
+* author:	Pasha (https://sketchfab.com/Pasha.)
+
+Model License:
+* license type:	SKETCHFAB Standard (https://sketchfab.com/licenses)
+* requirements:	Under basic restrictions, use worldwide, on all types of media, commercially or not, and in all types of derivative works

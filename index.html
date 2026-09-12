@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Tactical FPS - Real 3D Weapons</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="rotateOverlay"><h2>Please Rotate Phone to Landscape</h2></div>
+    
+    <!-- Three.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- GLTF Loader for your 3D Weapon Pack -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/utils/SkeletonUtils.js"></script>
+
+    <!-- UI Overlay Layer -->
+    <div id="uiLayer">
+        <!-- Critical Health Vignette -->
+        <div id="vignette"></div>
+        <div id="healingFlash"></div>
+        <div id="gooHit"></div>
+
+        <div id="healthDisplay" class="hud-panel">HP: <span id="healthVal">100</span></div>
+        <div id="scoreDisplay" class="hud-panel">SCORE: <span id="scoreVal">0</span></div>
+        <div id="killsDisplay" class="hud-panel">KILLS: <span id="killsVal">0</span></div>
+        <div id="weaponDisplay">WEAPON: <span id="currentWepName">ASSAULT RIFLE</span></div>
+        <div id="fpsDisplay">FPS: <span id="fpsVal">0</span></div>
+        <div id="ammoDisplay" class="hud-panel">AMMO: <span id="ammoVal">30</span> / <span id="reserveVal">90</span></div>
+        
+        <!-- Reload Ring -->
+        <div id="reloadUI">
+            <svg viewBox="0 0 36 36" class="circular-chart">
+                <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                <path class="circle" stroke-dasharray="100, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                <text x="18" y="22.5" class="reload-text" id="reloadText">0.5</text>
+            </svg>
+        </div>
+
+        <div id="crosshair">
+            <div class="ch-line"></div><div class="ch-line"></div>
+            <div class="ch-dot"></div>
+            <div id="hitMarker"><span></span><span></span><span></span><span></span></div>
+        </div>
+        
+        <!-- Mobile Controls -->
+        <div id="mobileControls">
+            <div id="lookZone"></div>
+            <div id="joystickZone"><div id="joystickKnob"></div></div>
+            <div id="fireBtn">FIRE</div>
+            <div id="jumpBtn">JUMP</div>
+            <div id="slideBtn">SLIDE</div>
+        </div>
+    </div>
+
+    <!-- Menus -->
+    <div id="startScreen" class="menu-screen">
+        <h1>TACTICAL SURVIVAL</h1>
+        <p style="margin-bottom: 10px; color: #a4b0be;">Select your loadout:</p>
+        <div class="weapon-select-container">
+            <div class="weapon-option selected" id="selRifle">AK-47 Assault</div>
+            <div class="weapon-option" id="selSMG">HK MP5 Tactical</div>
+            <div class="weapon-option" id="selM16">M16A1 Rifle</div>
+            <div class="weapon-option" id="selBarrett">Gun008 Sniper</div>
+            <div class="weapon-option" id="selPistol">FN Five-Seven</div>
+        </div>
+        <p style="margin-top: 15px; margin-bottom: 30px; font-size: 14px; color: #777;">
+            PC: Click to Lock Mouse | WASD to Move | C to Crouch | Shift to Run | Space to Jump | R to Reload | ESC to Pause<br>
+            Mobile: Touch Controls Enabled
+        </p>
+        <button class="primary-btn" id="startBtn">DEPLOY</button>
+    </div>
+
+    <div id="pauseScreen" class="menu-screen">
+        <h1 style="color: #00ffcc; text-shadow: 0 0 20px #00ffcc;">PAUSED</h1>
+        <div class="settings-panel">
+            <section class="settings-section">
+                <h2>GRAPHICS</h2>
+                <div class="settings-buttons">
+                    <button class="settings-option" data-quality="low" id="qualityLow">LOW</button>
+                    <button class="settings-option selected" data-quality="medium" id="qualityMedium">MEDIUM</button>
+                    <button class="settings-option" data-quality="ultra" id="qualityUltra">ULTRA</button>
+                </div>
+                <p class="settings-note">8 GB RAM or more recommended for ULTRA.</p>
+            </section>
+            <section class="settings-section">
+                <label for="sensitivitySlider">SENSITIVITY <output id="sensitivityValue">0.0030</output></label>
+                <input id="sensitivitySlider" type="range" min="0.001" max="0.008" step="0.0005" value="0.003">
+            </section>
+            <section class="settings-section">
+                <h2>CHANGE WEAPON</h2>
+                <div class="settings-buttons weapon-settings">
+                    <button class="settings-option" id="pauseRifle">AK-47</button>
+                    <button class="settings-option" id="pauseSMG">MP5</button>
+                    <button class="settings-option" id="pauseM16">M16A1</button>
+                        <button class="settings-option" id="pauseBarrett">SNIPER</button>
+                    <button class="settings-option" id="pausePistol">FIVE-SEVEN</button>
+                </div>
+            </section>
+        </div>
+        <button class="primary-btn" id="resumeBtn">RESUME</button>
+    </div>
+
+    <div id="deathScreen" class="menu-screen">
+        <h1 style="color: #ff4757; text-shadow: 0 0 20px #ff4757; margin-bottom: 10px;">YOU DIED</h1>
+        <p style="margin-bottom: 10px; color: #a4b0be;">Change loadout for next drop:</p>
+        <div class="weapon-select-container">
+            <div class="weapon-option selected" id="selRifleDeath">Equip AK-47</div>
+            <div class="weapon-option" id="selSMGDeath">Equip MP5</div>
+            <div class="weapon-option" id="selM16Death">Equip M16A1</div>
+            <div class="weapon-option" id="selBarrettDeath">Equip Sniper</div>
+            <div class="weapon-option" id="selPistolDeath">Equip Five-Seven</div>
+        </div>
+        <button class="primary-btn" id="restartBtn" style="background: #ff4757; color: white; margin-top: 25px;">REDEPLOY</button>
+    </div>
+
+    <!-- Game Logic -->
+    <script src="script.js"></script>
+</body>
+</html>

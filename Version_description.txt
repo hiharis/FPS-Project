@@ -1,0 +1,46 @@
+Project Guide: Web-Based FPS Game (HTML, CSS, JS)
+
+Overview
+This project is a browser-based First-Person Shooter (FPS) featuring basic mechanics like WASD movement, jumping, crouching, sliding, and enemy tracking. It is built entirely using web technologies, relying on the browser's rendering engine and JavaScript for game physics and logic.
+
+Core Technologies ("The Stuff Used")
+
+HTML (index.html): Structures the game container, the <canvas> element where the game is rendered, and UI overlays (like crosshairs, menus, or health bars).
+
+CSS (style.css): Handles absolute positioning for the UI (keeping the crosshair dead-center), styling the menus, and hiding the default cursor.
+
+JavaScript (game.js / Main Engine): Drives the entire game loop, handles player inputs, calculates physics (gravity, sliding friction), and manages enemy AI behavior.
+
+Pointer Lock API: A crucial browser API used to lock the mouse cursor inside the game window, allowing for endless 360-degree camera rotation without the mouse leaving the screen.
+
+Core Functions & Mechanics Guide
+
+The Game Loop (requestAnimationFrame)
+
+What it does: Tells the browser to update the game state and redraw the screen (usually 60 times per second).
+
+Where to work on it: Look for the main animate() or update() function. This is where you put anything that needs to happen continuously (like moving bullets or updating enemy positions).
+
+Player Input (addEventListener('keydown' / 'keyup'))
+
+What it does: Listens for 'W, A, S, D' for directional movement, 'Space' for jumping, and specific keys for crouching/sliding.
+
+Where to work on it: The input controller script. Variables for isJumping or isSliding are toggled true/false here based on key presses.
+
+Hit Detection & Shooting (Raycasting)
+
+What it does: When the user clicks to shoot, a "ray" (invisible line) is cast from the center of the camera straight forward. If it intersects with an enemy's hit-box, a hit is registered.
+
+How to fix the "bullets passing through" bug: You will need to check the Raycaster's intersection array or ensure the enemy's bounding box is updating to match their visual model on every frame.
+
+Collision Detection (AABB - Axis-Aligned Bounding Box)
+
+What it does: Mathematical checks to see if the player's coordinates overlap with the coordinates of a wall, floor, or enemy.
+
+How to fix the "clipping through walls" bug: Look at the sliding mechanics. When the player slides, their velocity increases. If the velocity is higher than the thickness of the wall, they phase through it. You need to implement continuous collision detection or cap the slide velocity.
+
+Enemy AI / Pathfinding
+
+What it does: Calculates the distance and angle between the enemy and the player, applying velocity to move the enemy toward the player's (x, y, z) coordinates.
+
+How to fix the "enemy gets stuck" bug: The enemy logic likely needs a basic "NavMesh" (navigation mesh) or obstacle avoidance math so they slide around walls instead of walking directly into them when trying to reach the player.
