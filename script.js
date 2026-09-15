@@ -1,4 +1,4 @@
-//i want to add a description before pushing this on git hub about the current features , problems and bug s 
+
 
 // --- DEVICE DETECTION & UI ---
 const isMobile = ('ontouchstart' in window || navigator.maxTouchPoints > 0);
