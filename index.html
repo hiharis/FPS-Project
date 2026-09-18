@@ -124,8 +124,7 @@
         </p>
         <button class="primary-btn" id="startBtn">DEPLOY</button>
     </div>
-
-    <div id="pauseScreen" class="menu-screen">
+<div id="pauseScreen" class="menu-screen">
         <h1 style="color: #00ffcc; text-shadow: 0 0 20px #00ffcc;">PAUSED</h1>
         <div class="settings-panel">
             <section class="settings-section">
@@ -155,10 +154,16 @@
         
         <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px;">
             <button class="primary-btn" id="resumeBtn">RESUME</button>
+            
+            <!-- NEW CUSTOMIZE BUTTON -->
+            <button class="primary-btn" id="customizeUiBtn" style="border-color: #f1c40f; color: #f1c40f;">CUSTOMIZE HUD</button>
+            
             <button class="primary-btn" id="exitToMenuBtn" style="background: #ff4757; color: white; box-shadow: 0 0 15px rgba(255,71,87,0.4);">MAIN MENU</button>
         </div>    
     </div>
 
+    <!-- NEW SAVE BUTTON (Must sit completely outside the pauseScreen div) -->
+    <button id="saveHudBtn" class="primary-btn" style="display:none; position:absolute; top:20px; left:50%; transform:translateX(-50%); z-index:10000; border-color: #2ecc71; color: #2ecc71; background: rgba(10,10,10,0.9);">SAVE CUSTOM UI</button>
     <div id="deathScreen" class="menu-screen">
         <h1 style="color: #ff4757; text-shadow: 0 0 20px #ff4757; margin-bottom: 10px;">YOU DIED</h1>
         <p style="margin-bottom: 10px; color: #a4b0be;">Change loadout for next drop:</p>

@@ -600,6 +600,127 @@ document.getElementById('jumpBtn').addEventListener('touchstart', (e)=>{e.preven
 document.getElementById('slideBtn').addEventListener('touchstart', (e)=>{e.preventDefault(); keys.shift=true;}); document.getElementById('slideBtn').addEventListener('touchend', (e)=>{e.preventDefault(); keys.shift=false;});
 document.getElementById('fireBtn').addEventListener('touchstart', (e)=>{ e.preventDefault(); e.stopPropagation(); isFiring = true; shootWeapon(); }); document.getElementById('fireBtn').addEventListener('touchend', (e)=>{e.preventDefault(); isFiring = false;});
 
+// --- HUD CUSTOMIZATION LOGIC ---
+let isCustomizing = false;
+const saveHudBtn = document.getElementById('saveHudBtn');
+const customizeUiBtn = document.getElementById('customizeUiBtn');
+const uiLayer = document.getElementById('uiLayer');
+
+// List of element IDs the player is allowed to move
+const draggableElements = [
+    'healthDisplay', 'scoreDisplay', 'killsDisplay', 'ammoDisplay', 'fpsDisplay',
+    'weaponDisplay', 'fireBtn', 'jumpBtn', 'slideBtn', 'joystickZone',
+    'mobilePauseBtn', 'mobileFullscreenBtn'
+];
+
+// Load saved positions on startup
+function loadHudPositions() {
+    draggableElements.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const savedPos = localStorage.getItem('hud_' + id);
+        if (savedPos) {
+            const { left, top } = JSON.parse(savedPos);
+            // Remove existing bottom/right CSS conflicts and apply saved absolute pixel positions
+            el.style.bottom = 'auto';
+            el.style.right = 'auto';
+            el.style.transform = 'none'; 
+            el.style.left = left;
+            el.style.top = top;
+        }
+    });
+}
+loadHudPositions();
+
+if (customizeUiBtn) {
+    customizeUiBtn.addEventListener('click', () => {
+        isCustomizing = true;
+        document.getElementById('pauseScreen').style.display = 'none';
+        saveHudBtn.style.display = 'block';
+        uiLayer.classList.add('customizing');
+        setupDraggables();
+    });
+}
+
+if (saveHudBtn) {
+    saveHudBtn.addEventListener('click', () => {
+        isCustomizing = false;
+        saveHudBtn.style.display = 'none';
+        uiLayer.classList.remove('customizing');
+        document.getElementById('pauseScreen').style.display = 'flex'; 
+
+        // Save new positions to the browser
+        draggableElements.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                localStorage.setItem('hud_' + id, JSON.stringify({
+                    left: el.style.left,
+                    top: el.style.top
+                }));
+            }
+        });
+    });
+}
+
+function setupDraggables() {
+    draggableElements.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el || el.dataset.dragAttached) return; // Prevent attaching multiple listeners
+        
+        let isDragging = false;
+        let startX, startY, initialLeft, initialTop;
+
+        const dragStart = (e) => {
+            if (!isCustomizing) return;
+            e.preventDefault();
+            isDragging = true;
+            
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            startX = clientX;
+            startY = clientY;
+            
+            const rect = el.getBoundingClientRect();
+            // Convert everything to top/left pixels so dragging math works flawlessly
+            el.style.right = 'auto';
+            el.style.bottom = 'auto';
+            el.style.transform = 'none';
+            el.style.left = rect.left + 'px';
+            el.style.top = rect.top + 'px';
+            
+            initialLeft = rect.left;
+            initialTop = rect.top;
+        };
+
+        const dragMove = (e) => {
+            if (!isDragging || !isCustomizing) return;
+            e.preventDefault();
+            
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            const dx = clientX - startX;
+            const dy = clientY - startY;
+            
+            el.style.left = (initialLeft + dx) + 'px';
+            el.style.top = (initialTop + dy) + 'px';
+        };
+
+        const dragEnd = () => { isDragging = false; };
+
+        // Attach mouse events
+        el.addEventListener('mousedown', dragStart);
+        window.addEventListener('mousemove', dragMove);
+        window.addEventListener('mouseup', dragEnd);
+        
+        // Attach touch events
+        el.addEventListener('touchstart', dragStart, { passive: false });
+        window.addEventListener('touchmove', dragMove, { passive: false });
+        window.addEventListener('touchend', dragEnd);
+        
+        el.dataset.dragAttached = 'true';
+    });
+}
 // --- CORE GAME LOOP ---
 function animate() {
     requestAnimationFrame(animate); 

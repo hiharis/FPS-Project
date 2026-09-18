@@ -389,3 +389,27 @@ button.primary-btn:hover {
     #mobilePauseBtn { top: 5px; right: 5px; width: 35px; height: 35px; font-size: 10px; line-height: 30px; }
     #mobileFullscreenBtn { top: 5px; right: 45px; width: 35px; height: 35px; font-size: 12px; line-height: 30px; }
 }
+/* =========================================
+   7. HUD CUSTOMIZATION MODE
+   ========================================= */
+#uiLayer.customizing {
+    pointer-events: auto !important; /* Allows clicking/dragging UI */
+    background: rgba(0, 0, 0, 0.4); /* Dims the background slightly */
+}
+
+/* Add dashed yellow outlines to draggable elements */
+#uiLayer.customizing .hud-panel, 
+#uiLayer.customizing .mobile-btn, 
+#uiLayer.customizing #weaponDisplay, 
+#uiLayer.customizing #joystickZone {
+    border: 2px dashed #f1c40f !important;
+    background-color: rgba(241, 196, 15, 0.2) !important;
+    cursor: move;
+    pointer-events: auto !important;
+    animation: flashOutline 1s infinite alternate;
+}
+
+@keyframes flashOutline {
+    0% { border-color: #f1c40f; }
+    100% { border-color: #e67e22; }
+}
