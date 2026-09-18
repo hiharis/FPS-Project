@@ -8,6 +8,44 @@
 </head>
 <body>
 
+    <!-- =========================================
+         1. NEW PRE-GAME OVERLAYS
+         ========================================= -->
+    <!-- LOADING SCREEN -->
+    <div id="loadingScreen" class="overlay-screen">
+        <div class="spinner"></div>
+        <div id="loadingText">LOADING ASSETS...</div>
+    </div>
+
+    <!-- TOS / PRIVACY MODAL -->
+    <div id="tosModal" class="overlay-screen" style="display: none;">
+        <div class="modal-box">
+            <h2>We Care About Your Experience</h2>
+            <p><strong>Disclaimer:</strong> This game is just fictional. If there is any copyright problem, please contact <strong>HARISKHAN.FORWORK@GMAIL.COM</strong>.</p>
+            <p><strong>Development Notice:</strong> This game is under current development. You may face some crashes and glitches. We always welcome your suggestions!</p>
+            <p><strong>Privacy:</strong> This game fully works on the user end. Absolutely NO data is collected or transmitted to external servers.</p>
+            <div class="modal-actions">
+                <button id="acceptTosBtn" class="ui-btn white-btn">I Accept</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN MENU -->
+    <div id="mainMenu" class="overlay-screen" style="display: none;">
+        <div class="menu-container">
+            <h1 style="font-size: 80px; margin-bottom: 200px; text-shadow: 0 0 20px rgba(255,255,255,0.5); color: white;">FPS PROJECT</h1>
+            <div class="menu-buttons">
+                <button id="quickMatchBtn" class="ui-btn outline-btn purple-border">Quick Match</button>
+                <button class="ui-btn outline-btn green-border">Ranked <span class="badge">WIP</span></button>
+                <button class="ui-btn outline-btn red-border">Host Game</button>
+                <button class="ui-btn outline-btn blue-border">Custom Games</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================
+         2. CORE GAME & UI
+         ========================================= -->
     <div id="rotateOverlay"><h2>Please Rotate Phone to Landscape</h2></div>
     
     <!-- Three.js Library -->
@@ -26,7 +64,16 @@
         <div id="healthDisplay" class="hud-panel">HP: <span id="healthVal">100</span></div>
         <div id="scoreDisplay" class="hud-panel">SCORE: <span id="scoreVal">0</span></div>
         <div id="killsDisplay" class="hud-panel">KILLS: <span id="killsVal">0</span></div>
-        <div id="weaponDisplay">WEAPON: <span id="currentWepName">ASSAULT RIFLE</span></div>
+        
+        <!-- Dynamic Weapon HUD -->
+        <div id="weaponDisplay">
+            <div class="weapon-info">
+                <span style="color: #aaa; font-size: 14px; font-family: monospace;">CLASS</span><br>
+                <span id="currentWepName" style="font-size: 24px; color: #fff;">ASSAULT RIFLE</span>
+            </div>
+            <div id="weaponIcon"></div>
+        </div>        
+        
         <div id="fpsDisplay">FPS: <span id="fpsVal">0</span></div>
         <div id="ammoDisplay" class="hud-panel">AMMO: <span id="ammoVal">30</span> / <span id="reserveVal">90</span></div>
         
@@ -56,7 +103,7 @@
     </div>
 
     <!-- Menus -->
-    <div id="startScreen" class="menu-screen">
+    <div id="startScreen" class="menu-screen" style="display: none;">
         <h1>TACTICAL SURVIVAL</h1>
         <p style="margin-bottom: 10px; color: #a4b0be;">Select your loadout:</p>
         <div class="weapon-select-container">
@@ -95,12 +142,16 @@
                     <button class="settings-option" id="pauseRifle">AK-47</button>
                     <button class="settings-option" id="pauseSMG">MP5</button>
                     <button class="settings-option" id="pauseM16">M16A1</button>
-                        <button class="settings-option" id="pauseBarrett">SNIPER</button>
+                    <button class="settings-option" id="pauseBarrett">SNIPER</button>
                     <button class="settings-option" id="pausePistol">FIVE-SEVEN</button>
                 </div>
             </section>
         </div>
-        <button class="primary-btn" id="resumeBtn">RESUME</button>
+        
+        <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px;">
+            <button class="primary-btn" id="resumeBtn">RESUME</button>
+            <button class="primary-btn" id="exitToMenuBtn" style="background: #ff4757; color: white; box-shadow: 0 0 15px rgba(255,71,87,0.4);">MAIN MENU</button>
+        </div>    
     </div>
 
     <div id="deathScreen" class="menu-screen">

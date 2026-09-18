@@ -1,78 +1,329 @@
+/* =========================================
+   1. CORE SETUP & BASE
+   ========================================= */
 body, html {
-    margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #0b0f15;
+    margin: 0; 
+    padding: 0; 
+    width: 100%; 
+    height: 100%; 
+    overflow: hidden; 
+    background-color: #0b0f15;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    touch-action: none; user-select: none; -webkit-user-select: none;
+    touch-action: none; 
+    user-select: none; 
+    -webkit-user-select: none;
 }
 
-#rotateOverlay {
-    display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    background: #111; color: white; z-index: 1000; justify-content: center; align-items: center; text-align: center;
+/* =========================================
+   2. PRE-GAME OVERLAYS (LOADING, TOS, MENU)
+   ========================================= */
+.overlay-screen {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-color: #111111;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; 
+    color: white;
+    font-family: 'Impact', sans-serif;
 }
-@media screen and (orientation: portrait) { #rotateOverlay { display: flex; } }
 
-#uiLayer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
+#mainMenu {
+    background-color: rgba(17, 17, 17, 0.85);
+    background-image: radial-gradient(circle at center, rgba(30,30,30,0.8) 0%, rgba(10,10,10,0.95) 100%);
+}
 
-/* HUD Elements */
+/* Loading Spinner */
+.spinner {
+    width: 60px;
+    height: 60px;
+    border: 6px solid #333;
+    border-top: 6px solid #fff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+@keyframes spin { 
+    0% { transform: rotate(0deg); } 
+    100% { transform: rotate(360deg); } 
+}
+#loadingText {
+    font-size: 24px;
+    letter-spacing: 2px;
+}
+
+/* TOS / Privacy Modal */
+.modal-box {
+    background-color: #222;
+    padding: 30px;
+    max-width: 600px;
+    border: 4px solid #444;
+    text-align: left;
+    font-family: 'Segoe UI', sans-serif;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+}
+.modal-box h2 {
+    margin-top: 0;
+    font-family: 'Impact', sans-serif;
+    font-size: 32px;
+    letter-spacing: 1px;
+    color: #fff;
+}
+.modal-box p {
+    font-size: 16px;
+    line-height: 1.5;
+    margin-bottom: 15px;
+    color: #ccc;
+}
+.modal-box strong {
+    color: #fff;
+}
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 25px;
+}
+
+/* UI Buttons */
+.ui-btn {
+    font-family: 'Impact', sans-serif;
+    font-size: 24px;
+    padding: 10px 20px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s ease-in-out;
+}
+.white-btn {
+    background-color: white;
+    color: #111;
+    border: none;
+    padding: 12px 40px;
+}
+.white-btn:hover { background-color: #ddd; transform: scale(1.05); }
+
+.menu-buttons {
+    display: flex;
+    gap: 15px;
+    position: absolute;
+    bottom: 50px;
+}
+.outline-btn {
+    background: transparent;
+    color: white;
+    border: 3px solid white;
+}
+.outline-btn:hover { background: rgba(255,255,255,0.1); transform: translateY(-3px); }
+.purple-border { border-color: #9b59b6; }
+.green-border { border-color: #2ecc71; }
+.red-border { border-color: #e74c3c; }
+.blue-border { border-color: #3498db; }
+
+.badge {
+    background: #e74c3c;
+    font-size: 12px;
+    padding: 2px 5px;
+    position: absolute;
+    top: -12px; right: -10px;
+    transform: rotate(15deg);
+    border: 1px solid #111;
+}
+
+/* =========================================
+   3. IN-GAME HUD & UI LAYER
+   ========================================= */
+#uiLayer { 
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+    z-index: 10; pointer-events: none; 
+}
+
 .hud-panel {
     position: absolute; color: #fff; font-size: 16px; font-weight: bold;
-    padding: 10px 18px; background: rgba(10, 15, 20, 0.75); border-radius: 6px; margin: 15px;
+    padding: 10px 18px; background: rgba(10, 15, 20, 0.75); border-radius: 2px; margin: 15px;
     backdrop-filter: blur(6px); border: 1px solid rgba(255,255,255,0.15);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    box-shadow: 2px 2px 0px rgba(0,0,0,0.8);
 }
-#healthDisplay { top: 10px; left: 10px; border-left: 4px solid #ff4757; transition: 0.3s; }
-#scoreDisplay { top: 10px; left: 140px; border-left: 4px solid #2ed573; }
-#killsDisplay { top: 10px; left: 280px; border-left: 4px solid #00ffcc; }
-#ammoDisplay { bottom: 30px; left: 50%; transform: translateX(-50%); border-bottom: 4px solid #ffa502; font-size: 20px; }
-#weaponDisplay { top: 10px; right: 20px; color: #ffa502; font-size: 16px; font-weight: bold; background: rgba(0,0,0,0.5); padding: 12px 20px; border-radius: 8px; border-right: 4px solid #ffa502; position: absolute;}
-#fpsDisplay { top: 66px; right: 20px; color: #9fffd5; font: bold 13px monospace; background: rgba(0,0,0,0.55); padding: 7px 12px; border-radius: 5px; border-right: 3px solid #00ffcc; position: absolute; }
+#healthDisplay { top: 10px; left: 10px; border-left: 4px solid #fff; transition: 0.3s; }
+#scoreDisplay { top: 10px; left: 140px; border-left: 4px solid #fff; }
+#killsDisplay { top: 10px; left: 280px; border-left: 4px solid #fff; }
+#ammoDisplay { bottom: 30px; left: 50%; transform: translateX(-50%); border-bottom: 4px solid #fff; font-size: 20px; }
+#fpsDisplay { top: 66px; right: 20px; color: #fff; font: bold 13px monospace; background: rgba(0,0,0,0.55); padding: 7px 12px; border-radius: 2px; border-right: 3px solid #fff; position: absolute; box-shadow: 2px 2px 0px rgba(0,0,0,0.8); }
 
+/* Dynamic Weapon Display with Sprite */
+#weaponDisplay { 
+    bottom: 30px; 
+    right: 30px; 
+    top: auto; 
+    display: flex; 
+    align-items: center; 
+    gap: 15px;
+    background: rgba(0,0,0,0.65); 
+    padding: 10px 20px; 
+    border-radius: 2px; 
+    border-right: 5px solid #fff; 
+    position: absolute;
+    font-family: 'Impact', sans-serif; 
+    text-transform: uppercase;
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.8);
+}
+.weapon-info { 
+    text-align: right; 
+    line-height: 1.1; 
+}
+#weaponIcon { 
+    width: 140px; 
+    height: 45px; 
+    background-image: url('images/23T.png');
+    background-size: 500% 100%; 
+    background-repeat: no-repeat;
+    background-position: 75% 0; 
+    filter: drop-shadow(3px 3px 0px rgba(0,0,0,0.8)); 
+}
+
+/* Flat Tactical Crosshair & Combat Feedback */
 #crosshair {
     position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
     width: 34px; height: 34px; pointer-events: none; opacity: 0.9;
 }
-.ch-line { position: absolute; background: #d7fff8; box-shadow: 0 0 5px #00ffcc; border-radius: 2px; }
-.ch-line:nth-child(1) { top: 16px; left: 0; width: 10px; height: 2px; }
-.ch-line:nth-child(2) { top: 16px; right: 0; width: 10px; height: 2px; }
-.ch-dot { position: absolute; top: 15px; left: 15px; width: 4px; height: 4px; border-radius: 50%; background: #00ffcc; box-shadow: 0 0 6px #00ffcc; }
+.ch-line { 
+    position: absolute; 
+    background: #fff; 
+    box-shadow: 1px 1px 0px #000; 
+    border-radius: 0px; 
+}
+.ch-line:nth-child(1) { top: 16px; left: 0; width: 10px; height: 3px; }
+.ch-line:nth-child(2) { top: 16px; right: 0; width: 10px; height: 3px; }
+.ch-dot { 
+    position: absolute; 
+    top: 15px; left: 15px; 
+    width: 4px; height: 4px; 
+    border-radius: 0px; 
+    background: #fff; 
+    box-shadow: 1px 1px 0px #000; 
+}
+
 #hitMarker { position: absolute; inset: 4px; opacity: 0; transform: scale(0.7); }
 #hitMarker.active { animation: hitMarkerPop 0.18s ease-out; }
-#hitMarker span { position: absolute; width: 8px; height: 2px; background: #fff; box-shadow: 0 0 5px #ff4757; }
+#hitMarker span { position: absolute; width: 8px; height: 2px; background: #fff; box-shadow: 1px 1px 0px #000; }
 #hitMarker span:nth-child(1) { top: 3px; left: 1px; transform: rotate(45deg); }
 #hitMarker span:nth-child(2) { top: 3px; right: 1px; transform: rotate(-45deg); }
 #hitMarker span:nth-child(3) { bottom: 3px; left: 1px; transform: rotate(-45deg); }
 #hitMarker span:nth-child(4) { bottom: 3px; right: 1px; transform: rotate(45deg); }
 @keyframes hitMarkerPop { 0% { opacity: 1; transform: scale(0.7); } 100% { opacity: 0; transform: scale(1.15); } }
 
-/* Critical Health Vignette */
+/* Screen Effects */
 #vignette {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     box-shadow: inset 0 0 150px rgba(255, 0, 0, 0.8);
     display: none; pointer-events: none; z-index: 1;
     animation: pulseVignette 1s infinite alternate;
 }
-@keyframes pulseVignette {
-    0% { opacity: 0.5; }
-    100% { opacity: 1.0; }
-}
-#healingFlash { position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 130px rgba(0, 255, 150, 0.75); opacity: 0; z-index: 1; }
-#healingFlash.active { animation: healingPulse 0.8s ease-out; }
-@keyframes healingPulse { 0% { opacity: 0.85; } 100% { opacity: 0; } }
-#gooHit { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 52% 48%, rgba(115, 255, 65, 0.5), rgba(38, 120, 22, 0.24) 45%, rgba(8, 35, 8, 0.72)); opacity: 0; z-index: 2; }
-#gooHit.active { animation: gooSplat 0.7s ease-out; }
-@keyframes gooSplat { 0% { opacity: 0.95; transform: scale(0.96); } 20% { opacity: 0.85; transform: scale(1); } 100% { opacity: 0; transform: scale(1.04); } }
+@keyframes pulseVignette { 0% { opacity: 0.5; } 100% { opacity: 1.0; } }
 
-/* Reload Circular UI */
+/* Reload UI */
 #reloadUI {
     display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
     width: 50px; height: 50px; z-index: 3; pointer-events: none;
 }
 .circular-chart { display: block; margin: 0 auto; max-width: 100%; max-height: 100%; }
 .circle-bg { fill: none; stroke: rgba(0,0,0,0.6); stroke-width: 4; }
-.circle { fill: none; stroke-width: 3; stroke-linecap: round; stroke: #00ffcc; transition: stroke-dasharray 0.05s linear; }
+.circle { fill: none; stroke-width: 3; stroke-linecap: round; stroke: #fff; transition: stroke-dasharray 0.05s linear; }
 .reload-text { fill: #fff; font-family: monospace; font-size: 11px; text-anchor: middle; font-weight: bold; text-shadow: 1px 1px 2px #000; }
 
-/* Mobile Controls UI */
-#mobileControls { display: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+/* =========================================
+   4. IN-GAME MENUS (PAUSE / DEATH)
+   ========================================= */
+.menu-screen {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 15, 15, 0.96); z-index: 5000; 
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    color: white; pointer-events: auto; text-align: center;
+}
+#pauseScreen, #deathScreen { display: none; }
+
+/* Flat Tactical Headers */
+h1 { 
+    font-size: 50px; 
+    margin: 0 0 15px 0; 
+    letter-spacing: 4px; 
+    color: #ffffff; 
+    text-shadow: 4px 4px 0px #000000; 
+    font-family: 'Impact', sans-serif;
+    text-transform: uppercase;
+}
+
+.weapon-select-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; max-width: 760px; margin: 20px 0; }
+
+/* Flat Tactical Weapon Options */
+.weapon-option {
+    padding: 12px 25px; 
+    background: #1a1a1a; 
+    border: 3px solid #333; 
+    border-radius: 2px;
+    color: #888; 
+    font-weight: bold; 
+    cursor: pointer; 
+    transition: 0.1s;
+    font-family: 'Impact', sans-serif;
+    letter-spacing: 1px;
+}
+.weapon-option:hover { 
+    background: #2a2a2a; 
+    color: #fff;
+    border-color: #555;
+}
+.weapon-option.selected { 
+    border-color: #fff; 
+    background: #fff; 
+    color: #000;
+}
+
+/* Flat Tactical Primary Buttons */
+button.primary-btn { 
+    padding: 16px 45px; 
+    font-size: 20px; 
+    font-weight: bold; 
+    border-radius: 2px; 
+    border: 3px solid #fff; 
+    background: rgba(10, 10, 10, 0.8); 
+    color: #fff; 
+    cursor: pointer; 
+    pointer-events: auto; 
+    box-shadow: none; 
+    text-shadow: 2px 2px 0px #000;
+    transition: 0.1s; 
+    font-family: 'Impact', sans-serif;
+    letter-spacing: 1px;
+}
+button.primary-btn:hover { 
+    background: #fff; 
+    color: #000; 
+    text-shadow: none;
+}
+
+/* Settings Panels inside Pause Menu */
+.settings-section { margin-bottom: 25px; }
+.settings-section h2 { margin-bottom: 10px; font-size: 20px; letter-spacing: 1px; }
+.settings-buttons { display: flex; gap: 10px; justify-content: center; }
+.settings-option {
+    padding: 8px 16px; background: #1a1a1a; border: 2px solid #333; color: #888;
+    cursor: pointer; font-family: 'Impact', sans-serif; transition: 0.1s;
+}
+.settings-option:hover { background: #2a2a2a; color: #fff; border-color: #555; }
+.settings-option.selected { border-color: #fff; background: #fff; color: #000; }
+.settings-note { font-size: 12px; color: #666; margin-top: 5px; }
+
+/* =========================================
+   5. MOBILE CONTROLS
+   ========================================= */
+#rotateOverlay {
+    display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: #111; color: white; z-index: 99999; justify-content: center; align-items: center; text-align: center;
+}
+@media screen and (orientation: portrait) { #rotateOverlay { display: flex; } }
+
+#mobileControls { display: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 50; }
 #lookZone { position: absolute; top: 0; right: 0; width: 50%; height: 100%; pointer-events: auto; }
 #joystickZone {
     position: absolute; bottom: 40px; left: 40px; width: 130px; height: 130px;
@@ -86,43 +337,6 @@ body, html {
     border-radius: 50%; pointer-events: auto; display: flex; justify-content: center; align-items: center; 
     color: white; font-weight: bold; transition: 0.1s;
 }
-.mobile-btn:active { background: rgba(255, 255, 255, 0.4); transform: scale(0.92); }
-
-#fireBtn { bottom: 40px; right: 40px; width: 90px; height: 90px; background: rgba(255, 70, 70, 0.4); border-color: rgba(255,255,255,0.6); box-shadow: 0 0 20px rgba(255,70,70,0.4); }
-#fireBtn:active { background: rgba(255, 70, 70, 0.8); }
+#fireBtn { bottom: 40px; right: 40px; width: 90px; height: 90px; background: rgba(255, 70, 70, 0.4); border-color: rgba(255,255,255,0.6); }
 #jumpBtn { bottom: 150px; right: 40px; width: 65px; height: 65px; }
-#slideBtn { bottom: 40px; right: 150px; width: 65px; height: 65px; background: rgba(0, 255, 204, 0.2); border-color: rgba(0,255,204,0.5); }
-#slideBtn:active { background: rgba(0, 255, 204, 0.5); }
-
-/* Menus */
-.menu-screen {
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(10, 14, 18, 0.96); z-index: 10;
-    display: flex; flex-direction: column; justify-content: center; align-items: center;
-    color: white; pointer-events: auto; text-align: center;
-}
-#pauseScreen, #deathScreen { display: none; }
-h1 { font-size: 50px; margin: 0 0 15px 0; letter-spacing: 4px; text-shadow: 0 0 20px rgba(0,255,204,0.4); color: #00ffcc; }
-.settings-panel { width: min(92vw, 720px); max-height: 68vh; overflow-y: auto; margin: 0 0 16px; padding: 18px 22px; background: rgba(18, 25, 29, 0.92); border: 1px solid rgba(0, 255, 204, 0.25); border-radius: 8px; }
-.settings-section { padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
-.settings-section:last-child { border-bottom: 0; }
-.settings-section h2, .settings-section label { display: flex; justify-content: space-between; align-items: center; margin: 0 0 10px; color: #d7fff8; font: bold 13px monospace; letter-spacing: 1px; }
-.settings-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
-.settings-option { padding: 9px 14px; color: #fff; background: #202a2d; border: 1px solid #536367; border-radius: 5px; cursor: pointer; font-weight: bold; }
-.settings-option:hover, .settings-option.selected { color: #081212; background: #00ffcc; border-color: #00ffcc; }
-.settings-note { margin: 9px 0 0; color: #8fa4a4; font-size: 12px; }
-#sensitivitySlider { width: 100%; accent-color: #00ffcc; cursor: pointer; }
-
-/* Interactive Weapon Selectors */
-.weapon-select-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; max-width: 760px; margin: 20px 0; }
-.weapon-option {
-    padding: 12px 25px; background: #222; border: 2px solid #555; border-radius: 8px;
-    color: white; font-weight: bold; cursor: pointer; transition: 0.2s;
-}
-.weapon-option:hover { background: #333; }
-.weapon-option.selected { border-color: #00ffcc; background: #0c3630; }
-.weapon-option.selected:hover { background: #0c3630; }
-
-button.primary-btn { padding: 16px 45px; font-size: 20px; font-weight: bold; border-radius: 8px; border: none; background: #00ffcc; color: #0b0f15; cursor: pointer; pointer-events: auto; box-shadow: 0 0 15px rgba(0,255,204,0.4); transition: 0.2s; }
-button.primary-btn:hover { background: #fff; box-shadow: 0 0 25px rgba(255,255,255,0.8); }
-button.primary-btn:active { transform: scale(0.95); }
+#slideBtn { bottom: 40px; right: 150px; width: 65px; height: 65px; background: rgba(255, 255, 255, 0.2); border-color: rgba(255,255,255,0.5); }

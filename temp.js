@@ -210,28 +210,6 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1 : 1.25)); 
 document.body.appendChild(renderer.domElement);
 
-// --- DYNAMIC LOADING MANAGER ---
-const loadingManager = new THREE.LoadingManager();
-
-loadingManager.onProgress = function(url, itemsLoaded, itemsTotal) {
-    const percent = Math.round((itemsLoaded / itemsTotal) * 100);
-    document.getElementById('loadingText').innerText = `LOADING ASSETS... ${percent}%`;
-};
-
-loadingManager.onLoad = function() {
-    document.getElementById('loadingScreen').style.display = 'none';
-    if (!localStorage.getItem('tosAccepted')) {
-        document.getElementById('tosModal').style.display = 'flex';
-    } else {
-        document.getElementById('mainMenu').style.display = 'flex';
-    }
-};
-
-loadingManager.onError = function(url) {
-    document.getElementById('loadingText').innerText = 'MINOR ASSET ERROR - CONTINUING...';
-    setTimeout(() => { loadingManager.onLoad(); }, 2000);
-};
-
 const skyGeo = new THREE.SphereGeometry(600, 32, 32);
 const textureLoader = new THREE.TextureLoader();
 textureLoader.load('./images/backgroundsky.jpg', (texture) => {
@@ -248,7 +226,7 @@ scene.add(dirLight);
 
 const wallMeshes = [], collisionMeshes = [], groundMeshes = []; 
 
-const mapLoader = new THREE.GLTFLoader(loadingManager);
+const mapLoader = new THREE.GLTFLoader();
 mapLoader.load('castle.glb', function(gltf) {
     const castle = gltf.scene;
     castle.scale.set(1.5, 1.5, 1.5); 
@@ -319,7 +297,7 @@ function updateWeaponVisibility() {
     pistolModel.visible = (selectedWeaponType === 'pistol');
 }
 
-const weaponLoader = new THREE.GLTFLoader(loadingManager);
+const weaponLoader = new THREE.GLTFLoader();
 weaponLoader.load('./lp_mini_pack_modern_weaponswith_bullets_part_2.glb', function(gltf) {
     const model = gltf.scene;
     const ak47 = model.getObjectByName('Gun009');
@@ -879,23 +857,6 @@ function startGame(e) {
     isDead = false; gameActive = true;
     try { if (!isMobile && document.body.requestPointerLock) document.body.requestPointerLock(); } catch(err) {}
 }   
-// --- MENU ROUTING ---
-document.getElementById('acceptTosBtn').addEventListener('click', () => {
-    localStorage.setItem('tosAccepted', 'true'); 
-    document.getElementById('tosModal').style.display = 'none';
-    document.getElementById('mainMenu').style.display = 'flex';
-});
-
-document.getElementById('quickMatchBtn').addEventListener('click', () => {
-    document.getElementById('mainMenu').style.display = 'none';
-    document.getElementById('startScreen').style.display = 'flex'; 
-});
-// --- EXIT TO MAIN MENU ---
-document.getElementById('exitToMenuBtn').addEventListener('click', () => {
-    // Instantly refreshes the browser, cleanly clearing Three.js memory and dropping the player right back at the Main Menu
-    location.reload(); 
-});
-
 document.getElementById('startBtn').addEventListener('click', startGame);
 document.getElementById('restartBtn').addEventListener('click', startGame);
 window.addEventListener('resize', () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
