@@ -29,8 +29,7 @@
             </div>
         </div>
     </div>
-
-    <!-- MAIN MENU -->
+<!-- MAIN MENU -->
     <div id="mainMenu" class="overlay-screen" style="display: none;">
         <div class="menu-container">
             <h1 style="font-size: 80px; margin-bottom: 200px; text-shadow: 0 0 20px rgba(255,255,255,0.5); color: white;">FPS PROJECT</h1>
@@ -39,6 +38,8 @@
                 <button class="ui-btn outline-btn green-border">Ranked <span class="badge">WIP</span></button>
                 <button class="ui-btn outline-btn red-border">Host Game</button>
                 <button class="ui-btn outline-btn blue-border">Custom Games</button>
+                <!-- Added Full Screen Button here -->
+                <button id="fullscreenMenuBtn" class="ui-btn outline-btn" style="border-color: #f1c40f;">FULL SCREEN</button>
             </div>
         </div>
     </div>
@@ -94,6 +95,9 @@
         
         <!-- Mobile Controls -->
         <div id="mobileControls">
+            <!-- Added Mobile Pause Button here -->
+            <div id="mobilePauseBtn" class="mobile-btn" style="top: 15px; right: 15px; width: 45px; height: 45px; z-index: 100; font-size: 16px; background: rgba(10,10,10,0.8); border: 2px solid #fff;">||</div>
+            
             <div id="lookZone"></div>
             <div id="joystickZone"><div id="joystickKnob"></div></div>
             <div id="fireBtn">FIRE</div>

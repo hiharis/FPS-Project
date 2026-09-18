@@ -340,3 +340,38 @@ button.primary-btn:hover {
 #fireBtn { bottom: 40px; right: 40px; width: 90px; height: 90px; background: rgba(255, 70, 70, 0.4); border-color: rgba(255,255,255,0.6); }
 #jumpBtn { bottom: 150px; right: 40px; width: 65px; height: 65px; }
 #slideBtn { bottom: 40px; right: 150px; width: 65px; height: 65px; background: rgba(255, 255, 255, 0.2); border-color: rgba(255,255,255,0.5); }
+/* =========================================
+   6. MOBILE RESPONSIVENESS & COMPACT HUD
+   ========================================= */
+@media screen and (max-width: 900px) {
+    /* Shrink and reposition the top bar stats */
+    .hud-panel { font-size: 12px; padding: 6px 10px; margin: 5px; }
+    #healthDisplay { top: 5px; left: 5px; }
+    #scoreDisplay { top: 5px; left: 95px; }
+    #killsDisplay { top: 5px; left: 195px; }
+    
+    #fpsDisplay { top: 5px; right: 75px; font-size: 10px; padding: 5px 8px; }
+    
+    /* Shrink and lift the weapon display so it avoids the slide/jump buttons */
+    #weaponDisplay { 
+        bottom: 85px; 
+        right: 15px; 
+        padding: 5px 10px;
+        transform: scale(0.7);
+        transform-origin: bottom right;
+    }
+    
+    /* Shrink the ammo counter */
+    #ammoDisplay { 
+        bottom: 10px; 
+        font-size: 14px; 
+        padding: 5px 15px; 
+    }
+
+    /* Slightly shrink touch controls to free up screen space */
+    #fireBtn { bottom: 15px; right: 15px; width: 75px; height: 75px; font-size: 14px; }
+    #jumpBtn { bottom: 105px; right: 15px; width: 50px; height: 50px; font-size: 12px; }
+    #slideBtn { bottom: 15px; right: 105px; width: 50px; height: 50px; font-size: 12px; }
+    #joystickZone { bottom: 15px; left: 15px; width: 110px; height: 110px; }
+    #joystickKnob { top: 30px; left: 30px; width: 50px; height: 50px; }
+}
