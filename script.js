@@ -895,9 +895,61 @@ document.getElementById('exitToMenuBtn').addEventListener('click', () => {
     // Instantly refreshes the browser, cleanly clearing Three.js memory and dropping the player right back at the Main Menu
     location.reload(); 
 });
+// --- FULLSCREEN LOGIC ---
+function toggleFullScreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+            console.warn(`Error attempting to enable fullscreen: ${err.message}`);
+        });
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        }
+    }
+}
 
+// --- FULLSCREEN LOGIC ---
+function toggleFullScreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+            console.warn(`Error attempting to enable fullscreen: ${err.message}`);
+        });
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        }
+    }
+}
+
+const fsMenuBtn = document.getElementById('fullscreenMenuBtn');
+if (fsMenuBtn) {
+    fsMenuBtn.addEventListener('click', toggleFullScreen);
+}
+
+// --- MOBILE PAUSE LOGIC ---
+const mobilePauseBtn = document.getElementById('mobilePauseBtn');
+if (mobilePauseBtn) {
+    mobilePauseBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault(); // Prevents double-firing touch events
+        togglePause();
+    }, { passive: false });
+}
+// --- MOBILE FULLSCREEN IN-GAME LOGIC ---
+const mobileFsBtn = document.getElementById('mobileFullscreenBtn');
+if (mobileFsBtn) {
+    mobileFsBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault(); 
+        toggleFullScreen();
+    }, { passive: false });
+}
+
+// --- GAME INITIALIZATION ---
 document.getElementById('startBtn').addEventListener('click', startGame);
 document.getElementById('restartBtn').addEventListener('click', startGame);
-window.addEventListener('resize', () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
+window.addEventListener('resize', () => { 
+    camera.aspect = window.innerWidth / window.innerHeight; 
+    camera.updateProjectionMatrix(); 
+    renderer.setSize(window.innerWidth, window.innerHeight); 
+});
 applyGraphicsQuality('medium');
 animate();
