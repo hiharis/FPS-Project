@@ -1,4 +1,4 @@
-// --- DEVICE DETECTION & UI ---
+// --- DEVICE DETECTION & UI --- and animations 
 const isMobile = ('ontouchstart' in window || navigator.maxTouchPoints > 0);
 if (isMobile) {
     document.getElementById('mobileControls').style.display = 'block';
@@ -240,45 +240,85 @@ textureLoader.load('./images/backgroundsky.jpg', (texture) => {
 
 const collidables = [], coverMeshes = [], obstacleMeshes = [];
 
-// --- FULLY AUTOMATIC CASTLE MAP COLLISION LOADER ---
-scene.add(new THREE.AmbientLight(0xffffff, 0.8)); 
-const dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
-dirLight.position.set(50, 100, 50);
-scene.add(dirLight);
+// --- UI ROUTING & GAME START LOGIC ---
+const mainMenu = document.getElementById('mainMenu');
+const mapSelectMenu = document.getElementById('mapSelectMenu');
+const loadingMapUI = document.getElementById('loadingMapUI');
 
-const wallMeshes = [], collisionMeshes = [], groundMeshes = []; 
+// Force Main Menu visible on load
+mainMenu.style.display = 'flex';
 
-const mapLoader = new THREE.GLTFLoader(loadingManager);
-mapLoader.load('castle.glb', function(gltf) {
-    const castle = gltf.scene;
-    castle.scale.set(1.5, 1.5, 1.5); 
-    castle.position.set(0, -2, 0); 
-    
-    // Convert materials to MeshBasicMaterial so they display true flat colors without overexposing
-    castle.traverse((node) => {
-        if (node.isMesh && node.material) {
-            const oldMat = node.material;
-            node.material = new THREE.MeshBasicMaterial({
-                map: oldMat.map || null,
-                color: oldMat.color || 0xffffff,
-                side: THREE.DoubleSide
-            });
-            node.updateMatrixWorld();
-            wallMeshes.push(node);
-
-            const box = new THREE.Box3().setFromObject(node);
-            const size = new THREE.Vector3();
-            box.getSize(size);
-            if (!(size.x > 40 && size.z > 40)) collisionMeshes.push(node);
-            if (size.x > 40 && size.z > 40) groundMeshes.push(node);
-        }
-    });
-
-    scene.add(castle);
-    castle.updateMatrixWorld(true);
-}, undefined, function(error) {
-    console.error("Error loading castle map:", error);
+// Quick Match -> Operation Setup
+document.getElementById('quickMatchBtn').addEventListener('click', () => {
+    mainMenu.style.display = 'none';
+    mapSelectMenu.style.display = 'flex';
 });
+
+// Back Button
+document.getElementById('backToMenuBtn').addEventListener('click', () => {
+    mapSelectMenu.style.display = 'none';
+    mainMenu.style.display = 'flex';
+});
+
+// Fullscreen Toggles
+function toggleFullScreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => console.log(err));
+    } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+    }
+}
+document.getElementById('fullscreenMenuBtn').addEventListener('click', toggleFullScreen);
+document.getElementById('mobileFullscreenBtn').addEventListener('click', toggleFullScreen);
+
+// Map Card Selection
+document.querySelectorAll('.map-card').forEach(card => {
+    card.addEventListener('click', (e) => {
+        document.querySelectorAll('.map-card').forEach(c => c.classList.remove('selected'));
+        e.target.classList.add('selected');
+        selectedMapFile = e.target.getAttribute('data-map');
+    });
+});
+
+// Deploy Button triggers Loading Screen
+document.getElementById('startBtn').addEventListener('click', () => {
+    mapSelectMenu.style.display = 'none';
+    loadingMapUI.style.display = 'flex';
+    
+    // Short delay gives the browser time to render the loading screen before parsing 3D data
+    setTimeout(() => {
+        loadSelectedMap(selectedMapFile);
+    }, 100);
+});
+
+// Game Reset & Initialization
+function startGame(e) {
+    if (e) e.preventDefault();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    
+    // Ensure all menus are closed
+    mainMenu.style.display = 'none';
+    mapSelectMenu.style.display = 'none';
+    document.getElementById('deathScreen').style.display = 'none'; 
+    document.getElementById('pauseScreen').style.display = 'none';
+    loadingMapUI.style.display = 'none';
+    
+    health = 100; score = 0; kills = 0; ammo = maxAmmo; reserveAmmo = 90; isReloading = false; isSliding = false; isPaused = false;
+    lastDamageTime = Date.now(); updateHUD(); document.getElementById('reloadUI').style.display = 'none'; document.getElementById('crosshair').style.opacity = '0.85';
+    
+    enemies.forEach(e => scene.remove(e.group)); enemies.length = 0; 
+    enemyProjectiles.forEach(projectile => scene.remove(projectile.mesh)); enemyProjectiles.length = 0;
+    
+    camera.position.set(0, 2.0, 0); yaw = 0; pitch = 0; camera.rotation.set(0,0,0);
+    lastSafePosition.set(0, 2.0, 0); blockedMovementFrames = 0;
+    const enemyCount = isMobile ? 4 : 6;
+    for(let i = 0; i < enemyCount; i++) spawnEnemy();
+    isDead = false; gameActive = true;
+    try { if (!isMobile && document.body.requestPointerLock) document.body.requestPointerLock(); } catch(err) {}
+}   
+
+// Redeploy from Death Screen
+document.getElementById('restartBtn').addEventListener('click', startGame);
 
 // --- INVISIBLE LEVEL BOUNDARIES ---
 const wallMat = new THREE.MeshBasicMaterial({ visible: false });
@@ -987,94 +1027,100 @@ function animate() {
     renderer.render(scene, camera); 
 }
 
+
+
+// Force Main Menu visible on load
+if (mainMenu) mainMenu.style.display = 'flex';
+
+// Quick Match -> Operation Setup
+document.getElementById('quickMatchBtn').addEventListener('click', () => {
+    mainMenu.style.display = 'none';
+    mapSelectMenu.style.display = 'flex';
+});
+
+// Back Button
+document.getElementById('backToMenuBtn').addEventListener('click', () => {
+    mapSelectMenu.style.display = 'none';
+    mainMenu.style.display = 'flex';
+});
+
+// Fullscreen Logic (Cleaned up - no duplicates)
+function toggleFullScreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+            console.warn(`Error attempting to enable fullscreen: ${err.message}`);
+        });
+    } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+    }
+}
+const fsMenuBtn = document.getElementById('fullscreenMenuBtn');
+if (fsMenuBtn) fsMenuBtn.addEventListener('click', toggleFullScreen);
+
+const mobFsBtn = document.getElementById('mobileFullscreenBtn');
+if (mobFsBtn) mobFsBtn.addEventListener('click', toggleFullScreen);
+
+// Map Card Selection
+document.querySelectorAll('.map-card').forEach(card => {
+    card.addEventListener('click', (e) => {
+        document.querySelectorAll('.map-card').forEach(c => c.classList.remove('selected'));
+        e.target.classList.add('selected');
+        selectedMapFile = e.target.getAttribute('data-map');
+    });
+});
+
+// Deploy Button triggers Loading Screen
+document.getElementById('startBtn').addEventListener('click', () => {
+    mapSelectMenu.style.display = 'none';
+    loadingMapUI.style.display = 'flex';
+    
+    // Short delay gives the browser time to render the loading screen before parsing 3D data
+    setTimeout(() => {
+        loadSelectedMap(selectedMapFile);
+    }, 100);
+});
+
+// Game Reset & Initialization
 function startGame(e) {
     if (e) e.preventDefault();
     if (audioCtx.state === 'suspended') audioCtx.resume();
-    document.getElementById('startScreen').style.display = 'none'; document.getElementById('deathScreen').style.display = 'none'; document.getElementById('pauseScreen').style.display = 'none';
+    
+    // Ensure all menus are closed
+    if (mainMenu) mainMenu.style.display = 'none';
+    if (mapSelectMenu) mapSelectMenu.style.display = 'none';
+    document.getElementById('startScreen').style.display = 'none';
+    document.getElementById('deathScreen').style.display = 'none'; 
+    document.getElementById('pauseScreen').style.display = 'none';
+    if (loadingMapUI) loadingMapUI.style.display = 'none';
+    
     health = 100; score = 0; kills = 0; ammo = maxAmmo; reserveAmmo = 90; isReloading = false; isSliding = false; isPaused = false;
     lastDamageTime = Date.now(); updateHUD(); document.getElementById('reloadUI').style.display = 'none'; document.getElementById('crosshair').style.opacity = '0.85';
     
-    enemies.forEach(e => scene.remove(e.group)); enemies.length = 0; 
+    enemies.forEach(en => scene.remove(en.group)); enemies.length = 0; 
     enemyProjectiles.forEach(projectile => scene.remove(projectile.mesh)); enemyProjectiles.length = 0;
     
     camera.position.set(0, 2.0, 0); yaw = 0; pitch = 0; camera.rotation.set(0,0,0);
-    lastSafePosition.set(0, 2.0, 0); blockedMovementFrames = 0;
+    
+    if (typeof lastSafePosition !== 'undefined') lastSafePosition.set(0, 2.0, 0); 
+    if (typeof blockedMovementFrames !== 'undefined') blockedMovementFrames = 0;
+    
     const enemyCount = isMobile ? 4 : 6;
     for(let i = 0; i < enemyCount; i++) spawnEnemy();
     isDead = false; gameActive = true;
     try { if (!isMobile && document.body.requestPointerLock) document.body.requestPointerLock(); } catch(err) {}
 }   
-// --- MENU ROUTING ---
-document.getElementById('acceptTosBtn').addEventListener('click', () => {
-    localStorage.setItem('tosAccepted', 'true'); 
-    document.getElementById('tosModal').style.display = 'none';
-    document.getElementById('mainMenu').style.display = 'flex';
-});
 
-document.getElementById('quickMatchBtn').addEventListener('click', () => {
-    document.getElementById('mainMenu').style.display = 'none';
-    document.getElementById('startScreen').style.display = 'flex'; 
-});
-// --- EXIT TO MAIN MENU ---
-document.getElementById('exitToMenuBtn').addEventListener('click', () => {
-    // Instantly refreshes the browser, cleanly clearing Three.js memory and dropping the player right back at the Main Menu
-    location.reload(); 
-});
-// --- FULLSCREEN LOGIC ---
-function toggleFullScreen() {
-    if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(err => {
-            console.warn(`Error attempting to enable fullscreen: ${err.message}`);
-        });
-    } else {
-        if (document.exitFullscreen) {
-            document.exitFullscreen();
-        }
-    }
+// Exit to Main Menu
+const exitBtn = document.getElementById('exitToMenuBtn');
+if (exitBtn) {
+    exitBtn.addEventListener('click', () => {
+        // Instantly refreshes the browser, cleanly clearing Three.js memory and dropping the player at the main menu
+        location.reload();
+    });
 }
 
-// --- FULLSCREEN LOGIC ---
-function toggleFullScreen() {
-    if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(err => {
-            console.warn(`Error attempting to enable fullscreen: ${err.message}`);
-        });
-    } else {
-        if (document.exitFullscreen) {
-            document.exitFullscreen();
-        }
-    }
-}
-
-const fsMenuBtn = document.getElementById('fullscreenMenuBtn');
-if (fsMenuBtn) {
-    fsMenuBtn.addEventListener('click', toggleFullScreen);
-}
-
-// --- MOBILE PAUSE LOGIC ---
-const mobilePauseBtn = document.getElementById('mobilePauseBtn');
-if (mobilePauseBtn) {
-    mobilePauseBtn.addEventListener('touchstart', (e) => {
-        e.preventDefault(); // Prevents double-firing touch events
-        togglePause();
-    }, { passive: false });
-}
-// --- MOBILE FULLSCREEN IN-GAME LOGIC ---
-const mobileFsBtn = document.getElementById('mobileFullscreenBtn');
-if (mobileFsBtn) {
-    mobileFsBtn.addEventListener('touchstart', (e) => {
-        e.preventDefault(); 
-        toggleFullScreen();
-    }, { passive: false });
-}
-
-// --- GAME INITIALIZATION ---
-document.getElementById('startBtn').addEventListener('click', startGame);
+// Redeploy from Death Screen
 document.getElementById('restartBtn').addEventListener('click', startGame);
-window.addEventListener('resize', () => { 
-    camera.aspect = window.innerWidth / window.innerHeight; 
-    camera.updateProjectionMatrix(); 
-    renderer.setSize(window.innerWidth, window.innerHeight); 
-});
-applyGraphicsQuality('medium');
+
+// Start the animation loop
 animate();
