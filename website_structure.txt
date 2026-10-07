@@ -1,0 +1,120 @@
+======================================================================
+FOLDER TREE
+======================================================================
+
+Website/
+├── README.md  (371.00 B)
+├── pathcheck.py  (5.62 KB)
+├── server.py  (4.14 KB)
+├── Cache/
+├── Thumbnail/
+│   ├── Screenshot 2026-09-15 092359.png  (93.88 KB)
+│   ├── Screenshot 2026-09-15 092417.png  (831.89 KB)
+│   ├── Screenshot 2026-09-15 092426.png  (204.82 KB)
+│   └── main_i8lcc7i8lcc7i8lc.jpg  (1.70 MB)
+├── audio/
+│   ├── genralfiresound_6sec.mp3  (154.21 KB)
+│   ├── reloadsound1sec.mp3  (16.66 KB)
+│   └── walking_runing same sound25sec.mp3  (255.18 KB)
+├── enemies/
+│   ├── characters.glb  (4.05 MB)
+│   └── polyart_zombies_with_animations_free_pack.glb  (6.86 MB)
+├── images/
+│   ├── 23T.png  (54.78 KB)
+│   ├── backgroundsky.jpg  (547.77 KB)
+│   └── gunonlywith hand.png  (300.61 KB)
+├── js/
+│   └── script.js  (59.48 KB)
+├── maps/
+│   ├── 2m.glb  (432.34 KB)
+│   ├── 3m.glb  (45.38 KB)
+│   ├── 4m.glb  (13.22 MB)
+│   └── castle.glb  (3.47 MB)
+├── ui/
+│   ├── Version_description.txt  (3.01 KB)
+│   ├── index.html  (22.88 KB)
+│   └── style.css  (11.67 KB)
+└── weapons/
+    ├── free_pack_-_gun.glb  (1.69 MB)
+    └── lp_mini_pack_modern_weaponswith_bullets_part_2.glb  (1.11 MB)
+
+
+======================================================================
+ASSET FILES (sorted by size, biggest first)
+======================================================================
+
+    13.22 MB   maps/4m.glb
+     6.86 MB   enemies/polyart_zombies_with_animations_free_pack.glb
+     4.05 MB   enemies/characters.glb
+     3.47 MB   maps/castle.glb
+     1.70 MB   Thumbnail/main_i8lcc7i8lcc7i8lc.jpg
+     1.69 MB   weapons/free_pack_-_gun.glb
+     1.11 MB   weapons/lp_mini_pack_modern_weaponswith_bullets_part_2.glb
+   831.89 KB   Thumbnail/Screenshot 2026-09-15 092417.png
+   547.77 KB   images/backgroundsky.jpg
+   432.34 KB   maps/2m.glb
+   300.61 KB   images/gunonlywith hand.png
+   255.18 KB   audio/walking_runing same sound25sec.mp3
+   204.82 KB   Thumbnail/Screenshot 2026-09-15 092426.png
+   154.21 KB   audio/genralfiresound_6sec.mp3
+    93.88 KB   Thumbnail/Screenshot 2026-09-15 092359.png
+    54.78 KB   images/23T.png
+    45.38 KB   maps/3m.glb
+    16.66 KB   audio/reloadsound1sec.mp3
+
+
+======================================================================
+FILE TYPES
+======================================================================
+
+  .glb             8 files     30.86 MB
+  .jpg             2 files      2.24 MB
+  .png             5 files      1.45 MB
+  .mp3             3 files    426.06 KB
+  .js              1 files     59.48 KB
+  .html            1 files     22.88 KB
+  .css             1 files     11.67 KB
+  .py              2 files      9.76 KB
+  .txt             1 files      3.01 KB
+  .md              1 files     371.00 B
+
+
+======================================================================
+TOTALS
+======================================================================
+
+  Files:  25
+  Size:   35.07 MB
+
+
+======================================================================
+FULL FILE LIST (every file, relative path)
+======================================================================
+
+  README.md
+  Thumbnail/Screenshot 2026-09-15 092359.png
+  Thumbnail/Screenshot 2026-09-15 092417.png
+  Thumbnail/Screenshot 2026-09-15 092426.png
+  Thumbnail/main_i8lcc7i8lcc7i8lc.jpg
+  audio/genralfiresound_6sec.mp3
+  audio/reloadsound1sec.mp3
+  audio/walking_runing same sound25sec.mp3
+  enemies/characters.glb
+  enemies/polyart_zombies_with_animations_free_pack.glb
+  images/23T.png
+  images/backgroundsky.jpg
+  images/gunonlywith hand.png
+  js/script.js
+  maps/2m.glb
+  maps/3m.glb
+  maps/4m.glb
+  maps/castle.glb
+  pathcheck.py
+  server.py
+  ui/Version_description.txt
+  ui/index.html
+  ui/style.css
+  weapons/free_pack_-_gun.glb
+  weapons/lp_mini_pack_modern_weaponswith_bullets_part_2.glb
+
+
