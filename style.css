@@ -2,15 +2,15 @@
    1. CORE SETUP & BASE
    ========================================= */
 body, html {
-    margin: 0; 
-    padding: 0; 
-    width: 100%; 
-    height: 100%; 
-    overflow: hidden; 
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
     background-color: #0b0f15;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    touch-action: none; 
-    user-select: none; 
+    touch-action: none;
+    user-select: none;
     -webkit-user-select: none;
 }
 
@@ -25,7 +25,7 @@ body, html {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    z-index: 9999; /* Absolute highest priority to block game rendering */
+    z-index: 9999;
     color: white;
     font-family: 'Impact', sans-serif;
 }
@@ -35,7 +35,6 @@ body, html {
     background-image: radial-gradient(circle at center, rgba(30,30,30,0.8) 0%, rgba(10,10,10,0.95) 100%);
 }
 
-/* Map Selection Cards */
 .map-card {
     padding: 25px 35px;
     background: #1a1a1a;
@@ -48,19 +47,14 @@ body, html {
     cursor: pointer;
     transition: 0.15s ease-in-out;
 }
-.map-card:hover { 
-    background: #2a2a2a; 
-    color: #fff; 
-    border-color: #555; 
-}
-.map-card.selected { 
-    border-color: #00ffcc; 
-    background: #00ffcc; 
-    color: #000; 
-    box-shadow: 0 0 20px rgba(0, 255, 204, 0.4); 
+.map-card:hover { background: #2a2a2a; color: #fff; border-color: #555; }
+.map-card.selected {
+    border-color: #00ffcc;
+    background: #00ffcc;
+    color: #000;
+    box-shadow: 0 0 20px rgba(0, 255, 204, 0.4);
 }
 
-/* Loading Spinner */
 .spinner {
     width: 60px;
     height: 60px;
@@ -70,12 +64,11 @@ body, html {
     animation: spin 1s linear infinite;
     margin-bottom: 20px;
 }
-@keyframes spin { 
-    0% { transform: rotate(0deg); } 
-    100% { transform: rotate(360deg); } 
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
-/* TOS / Privacy Modal */
 .modal-box {
     background-color: #222;
     padding: 30px;
@@ -90,7 +83,6 @@ body, html {
 .modal-box strong { color: #fff; }
 .modal-actions { display: flex; justify-content: center; margin-top: 25px; }
 
-/* Krunker-Style Buttons */
 .ui-btn {
     font-family: 'Impact', sans-serif;
     font-size: 24px;
@@ -130,9 +122,9 @@ body, html {
 /* =========================================
    3. IN-GAME HUD & UI LAYER
    ========================================= */
-#uiLayer { 
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-    z-index: 10; pointer-events: none; 
+#uiLayer {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 10; pointer-events: none;
 }
 
 .hud-panel {
@@ -148,7 +140,6 @@ body, html {
 #weaponDisplay { top: 10px; right: 20px; color: #ffa502; font-size: 16px; font-weight: bold; background: rgba(0,0,0,0.5); padding: 12px 20px; border-radius: 8px; border-right: 4px solid #ffa502; position: absolute;}
 #fpsDisplay { top: 66px; right: 20px; color: #9fffd5; font: bold 13px monospace; background: rgba(0,0,0,0.55); padding: 7px 12px; border-radius: 5px; border-right: 3px solid #00ffcc; position: absolute; }
 
-/* Crosshair & Combat Feedback */
 #crosshair {
     position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
     width: 34px; height: 34px; pointer-events: none; opacity: 0.9;
@@ -167,7 +158,6 @@ body, html {
 #hitMarker span:nth-child(4) { bottom: 3px; right: 1px; transform: rotate(45deg); }
 @keyframes hitMarkerPop { 0% { opacity: 1; transform: scale(0.7); } 100% { opacity: 0; transform: scale(1.15); } }
 
-/* Screen Effects */
 #vignette {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     box-shadow: inset 0 0 150px rgba(255, 0, 0, 0.8);
@@ -175,6 +165,31 @@ body, html {
     animation: pulseVignette 1s infinite alternate;
 }
 @keyframes pulseVignette { 0% { opacity: 0.5; } 100% { opacity: 1.0; } }
+
+/* --- Healing flash & goo hit (missing from your original CSS) --- */
+#healingFlash {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(circle, rgba(46, 213, 115, 0) 40%, rgba(46, 213, 115, 0.35) 100%);
+    opacity: 0; pointer-events: none; z-index: 2;
+}
+#healingFlash.active { animation: healFlash 0.6s ease-out; }
+@keyframes healFlash {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+#gooHit {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(circle, rgba(101, 255, 56, 0) 30%, rgba(101, 255, 56, 0.55) 100%);
+    opacity: 0; pointer-events: none; z-index: 2;
+}
+#gooHit.active { animation: gooHitFlash 0.45s ease-out; }
+@keyframes gooHitFlash {
+    0% { opacity: 0; }
+    40% { opacity: 1; }
+    100% { opacity: 0; }
+}
 
 /* Reload UI */
 #reloadUI {
@@ -191,7 +206,7 @@ body, html {
    ========================================= */
 .menu-screen {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(10, 14, 18, 0.96); z-index: 5000; /* Just below main UI */
+    background: rgba(10, 14, 18, 0.96); z-index: 5000;
     display: flex; flex-direction: column; justify-content: center; align-items: center;
     color: white; pointer-events: auto; text-align: center;
 }
@@ -214,10 +229,10 @@ h1 { font-size: 50px; margin: 0 0 15px 0; letter-spacing: 4px; text-shadow: 0 0 
 .weapon-option:hover { background: #333; }
 .weapon-option.selected { border-color: #00ffcc; background: #0c3630; }
 
-button.primary-btn { 
-    padding: 16px 45px; font-size: 20px; font-weight: bold; border-radius: 8px; 
-    border: none; background: #00ffcc; color: #0b0f15; cursor: pointer; 
-    pointer-events: auto; box-shadow: 0 0 15px rgba(0,255,204,0.4); transition: 0.2s; 
+button.primary-btn {
+    padding: 16px 45px; font-size: 20px; font-weight: bold; border-radius: 8px;
+    border: none; background: #00ffcc; color: #0b0f15; cursor: pointer;
+    pointer-events: auto; box-shadow: 0 0 15px rgba(0,255,204,0.4); transition: 0.2s;
 }
 button.primary-btn:hover { background: #fff; box-shadow: 0 0 25px rgba(255,255,255,0.8); }
 
@@ -234,14 +249,14 @@ button.primary-btn:hover { background: #fff; box-shadow: 0 0 25px rgba(255,255,2
 #lookZone { position: absolute; top: 0; right: 0; width: 50%; height: 100%; pointer-events: auto; }
 #joystickZone {
     position: absolute; bottom: 40px; left: 40px; width: 130px; height: 130px;
-    background: rgba(255,255,255,0.03); border: 2px solid rgba(255,255,255,0.15); 
+    background: rgba(255,255,255,0.03); border: 2px solid rgba(255,255,255,0.15);
     border-radius: 50%; pointer-events: auto; backdrop-filter: blur(4px);
 }
 #joystickKnob { position: absolute; top: 35px; left: 35px; width: 60px; height: 60px; background: rgba(255,255,255,0.4); border-radius: 50%; }
 
 .mobile-btn {
     position: absolute; background: rgba(255, 255, 255, 0.15); border: 3px solid rgba(255,255,255,0.4);
-    border-radius: 50%; pointer-events: auto; display: flex; justify-content: center; align-items: center; 
+    border-radius: 50%; pointer-events: auto; display: flex; justify-content: center; align-items: center;
     color: white; font-weight: bold; transition: 0.1s;
 }
 #fireBtn { bottom: 40px; right: 40px; width: 90px; height: 90px; background: rgba(255, 70, 70, 0.4); border-color: rgba(255,255,255,0.6); }
