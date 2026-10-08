@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="vendor/three.min.js"></script>
+<script src="vendor/GLTFLoader.js"></script>
+<script src="vendor/SkeletonUtils.js"></script>
+</head>
+<body>
+<pre id="log"></pre>
+<script>
+function print(msg) {
+    document.getElementById('log').textContent += msg + '\n';
+    console.log(msg);
+    fetch('/log', { method: 'POST', body: msg }).catch(() => {});
+}
+
+const loader = new THREE.GLTFLoader();
+loader.load('enemies/polyart_zombies_with_animations_free_pack.glb', (gltf) => {
+    const rootNode = gltf.scene.getObjectByName('RootNode');
+    const fullClip = gltf.animations[0];
+
+    const rigNodes = [];
+    rootNode.children.forEach(c => {
+        let hasSkin = false;
+        c.traverse(x => { if (x.isSkinnedMesh) hasSkin = true; });
+        if (hasSkin) rigNodes.push(c);
+    });
+
+    const TARGET_HEIGHT = 1.4;
+
+    // Test animating all 10 zombies over 60 frames (1 second)
+    rigNodes.forEach((rig, idx) => {
+        const clone = THREE.SkeletonUtils.clone(rig);
+        clone.position.set(0, 0, 0);
+        clone.rotation.set(0, 0, 0);
+        clone.scale.set(1, 1, 1);
+        clone.updateMatrixWorld(true);
+
+        const rawBox = new THREE.Box3().setFromObject(clone);
+        const rawSize = rawBox.getSize(new THREE.Vector3());
+        const rawCenter = rawBox.getCenter(new THREE.Vector3());
+
+        const scale = TARGET_HEIGHT / rawSize.y;
+
+        const container = new THREE.Group();
+        const modelHolder = new THREE.Group();
+        container.add(modelHolder);
+        modelHolder.add(clone);
+
+        modelHolder.position.x = -rawCenter.x;
+        modelHolder.position.y = -rawBox.min.y;
+        modelHolder.position.z = -rawCenter.z;
+
+        container.scale.setScalar(scale);
+        container.updateMatrixWorld(true);
+
+        // Filter animation tracks for this rig
+        const nodeNames = new Set();
+        clone.traverse(n => { if (n.name) nodeNames.add(n.name); });
+        const tracks = fullClip.tracks.filter(t => nodeNames.has(t.name.split('.')[0]));
+        const clip = new THREE.AnimationClip('walk_' + idx, fullClip.duration, tracks);
+
+        // Mixer on clone
+        const mixer = new THREE.AnimationMixer(clone);
+        const action = mixer.clipAction(clip);
+        action.play();
+
+        // Simulate 60 frames
+        let minY = Infinity, maxY = -Infinity;
+        for (let f = 0; f < 60; f++) {
+            mixer.update(1 / 60);
+            container.updateMatrixWorld(true);
+            const b = new THREE.Box3().setFromObject(container);
+            if (b.min.y < minY) minY = b.min.y;
+            if (b.max.y > maxY) maxY = b.max.y;
+        }
+
+        print('Zombie ' + idx + ' animated 60 frames OK. Min Y=' + minY.toFixed(2) + ', Max Y=' + maxY.toFixed(2));
+    });
+
+    print('=== DONE ===');
+});
+</script>
+</body>
+</html>
+

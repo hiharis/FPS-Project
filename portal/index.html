@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0e14">
+    <title>ARCADE 2.0</title>
+    <link rel="stylesheet" href="/portal/portal.css">
+</head>
+<body>
+
+    <!-- ==================== TOP NAV ==================== -->
+    <header class="nav">
+        <div class="nav-inner">
+            <a href="#" class="nav-logo" id="navLogo">
+                <span class="logo-mark">A</span>
+                <span class="logo-text">ARCADE <span class="logo-num">2.0</span></span>
+            </a>
+            <div class="nav-search">
+                <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="7"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" id="searchInput" placeholder="Search games..." autocomplete="off" spellcheck="false">
+            </div>
+            <nav class="nav-categories" id="categoryTabs">
+                <!-- Filled by JS from games.json -->
+            </nav>
+        </div>
+    </header>
+
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <main class="main">
+
+        <!-- Featured hero -->
+        <section class="hero" id="hero">
+            <!-- Filled by JS -->
+        </section>
+
+        <!-- Game grid -->
+        <section class="grid-section">
+            <div class="section-header">
+                <h2 class="section-title" id="gridTitle">All Games</h2>
+                <span class="section-count" id="gridCount">0 games</span>
+            </div>
+            <div class="grid" id="gameGrid">
+                <!-- Filled by JS -->
+            </div>
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <p>No games match your search.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <span>ARCADE 2.0</span>
+            <span class="footer-sep">·</span>
+            <span>Play instantly — no downloads</span>
+        </div>
+    </footer>
+
+    <!-- ==================== GAME MODAL ==================== -->
+    <div class="modal" id="gameModal" style="display: none;">
+        <div class="modal-backdrop" id="modalBackdrop"></div>
+        <div class="modal-shell">
+            <div class="modal-bar">
+                <div class="modal-title-wrap">
+                    <span class="modal-title" id="modalTitle">Game</span>
+                    <span class="modal-subtitle" id="modalSubtitle"></span>
+                </div>
+                <div class="modal-actions">
+                    <button class="modal-btn" id="modalFullscreen" title="Fullscreen">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M8 3H5a2 2 0 0 0-2 2v3"></path>
+                            <path d="M21 8V5a2 2 0 0 0-2-2h-3"></path>
+                            <path d="M3 16v3a2 2 0 0 0 2 2h3"></path>
+                            <path d="M16 21h3a2 2 0 0 0 2-2v-3"></path>
+                        </svg>
+                    </button>
+                    <button class="modal-btn modal-btn-close" id="modalClose" title="Close">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- iframe injected here on click -->
+            </div>
+        </div>
+    </div>
+
+    <script src="/portal/portal.js"></script>
+</body>
+</html>

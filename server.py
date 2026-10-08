@@ -1,25 +1,23 @@
-"""Development / LAN host server for the Tactical Survival FPS.
+"""
+Local development HTTP server for ARCADE 2.0.
+
+Serves the entire Website/ folder so the portal and games can be tested
+locally with correct MIME types and cache headers.
 
 Usage
 -----
-    py server.py            # serves on http://127.0.0.1:8000/
-    py server.py 8080       # serves on 8080 (walks forward if that port is busy)
-
-Then open the printed URL in a browser.
+    py server.py              # serves on http://127.0.0.1:8000/
+    py server.py 8080         # tries 8080, walks forward if busy
+    py server.py --verbose    # logs every request
 
 Why a server is required
 ------------------------
-index.html loads large binary assets from disk -- castle.glb, the weapon pack,
-the zombie pack, images/backgroundsky.jpg and audio/firing.mp3. Opening the
-page straight from the filesystem (file://) breaks all of them: Chrome blocks
-cross-origin XHR for file:// URLs, so GLTFLoader never receives the model data
-and the map, weapons and enemies silently fail to appear. Serving the folder
-over HTTP makes every request same-origin and everything loads.
+The game loads large binary assets (.glb, .gltf, .mp3). Opening index.html
+directly via file:// breaks cross-origin XHR, so GLTFLoader never receives
+the data and models silently fail to appear. Serving over HTTP makes every
+request same-origin.
 
-Binding to 0.0.0.0 (rather than 127.0.0.1) also lets other machines on the
-same network open the game, which is what the LAN multiplayer mode needs.
-
-No third-party packages and no build step are required.
+No third-party packages needed.
 """
 
 import http.server
@@ -28,33 +26,115 @@ import socket
 import socketserver
 import sys
 
+# ---------------------------------------------------------------
+# Configuration
+# ---------------------------------------------------------------
 HOST = "0.0.0.0"
 DEFAULT_PORT = 8000
 PORT_SEARCH_RANGE = 20
 
+# Correct MIME types for files Python's http.server doesn't know
+EXTRA_MIME_TYPES = {
+    ".glb":  "model/gltf-binary",
+    ".gltf": "model/gltf+json",
+    ".bin":  "application/octet-stream",
+    ".js":   "application/javascript",
+    ".mjs":  "application/javascript",
+    ".json": "application/json",
+    ".wasm": "application/wasm",
+    ".mp3":  "audio/mpeg",
+    ".ogg":  "audio/ogg",
+    ".wav":  "audio/wav",
+    ".mp4":  "video/mp4",
+    ".webm": "video/webm",
+    ".woff": "font/woff",
+    ".woff2": "font/woff2",
+    ".ttf":  "font/ttf",
+    ".svg":  "image/svg+xml",
+}
 
+# Cache rules (matches what vercel.json will do in production)
+CACHE_RULES = {
+    ".html": "no-store",
+    ".css":  "no-store",
+    ".js":   "no-store",
+    ".json": "no-store",
+    ".md":   "no-store",
+    ".py":   "no-store",
+    ".glb":  "public, max-age=31536000, immutable",
+    ".gltf": "public, max-age=31536000, immutable",
+    ".bin":  "public, max-age=31536000, immutable",
+    ".mp3":  "public, max-age=31536000, immutable",
+    ".wav":  "public, max-age=31536000, immutable",
+    ".ogg":  "public, max-age=31536000, immutable",
+    ".jpg":  "public, max-age=31536000, immutable",
+    ".jpeg": "public, max-age=31536000, immutable",
+    ".png":  "public, max-age=31536000, immutable",
+    ".webp": "public, max-age=31536000, immutable",
+    ".svg":  "public, max-age=31536000, immutable",
+    ".woff":  "public, max-age=31536000, immutable",
+    ".woff2": "public, max-age=31536000, immutable",
+}
+
+VERBOSE = "--verbose" in sys.argv
+
+
+# ---------------------------------------------------------------
+# Request handler
+# ---------------------------------------------------------------
 class GameRequestHandler(http.server.SimpleHTTPRequestHandler):
-    """Static file handler with caching disabled, so code edits show on reload."""
+
+    # Route clean URLs to actual files
+    def do_GET(self):
+        if self.path == "/" or self.path == "":
+            self.path = "/portal/index.html"
+        elif self.path == "/portal" or self.path == "/portal/":
+            self.path = "/portal/index.html"
+        elif self.path == "/game" or self.path == "/game/":
+            self.path = "/games/fps-shooter/index.html"
+        elif self.path.startswith("/FPS/portal/games/audio/"):
+            self.path = self.path.replace("/FPS/portal/games/audio/", "/games/fps-shooter/audio/")
+        elif self.path.startswith("/portal/games/audio/"):
+            self.path = self.path.replace("/portal/games/audio/", "/games/fps-shooter/audio/")
+        elif self.path.startswith("/FPS/games/audio/"):
+            self.path = self.path.replace("/FPS/games/audio/", "/games/fps-shooter/audio/")
+        super().do_GET()
+
+    def guess_type(self, path):
+        """Override MIME detection with our custom map first."""
+        ext = os.path.splitext(path)[1].lower()
+        if ext in EXTRA_MIME_TYPES:
+            return EXTRA_MIME_TYPES[ext]
+        return super().guess_type(path)
 
     def end_headers(self):
-        self.send_header("Cache-Control", "no-store, no-cache, must-revalidate")
-        self.send_header("Pragma", "no-cache")
-        self.send_header("Expires", "0")
+        """Inject cache + CORS headers (no gzip — let browser handle it)."""
+        ext = os.path.splitext(self.path)[1].lower()
+        cache = CACHE_RULES.get(ext, "no-store")
+        self.send_header("Cache-Control", cache)
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Accept-Ranges", "bytes")
         super().end_headers()
 
     def log_message(self, fmt, *args):
-        # Default handler writes to stderr without flushing; make it immediate.
-        sys.stdout.write("%s - %s\n" % (self.address_string(), fmt % args))
-        sys.stdout.flush()
+        """Quiet by default. Use --verbose to log every request."""
+        if VERBOSE:
+            sys.stdout.write("%s - %s\n" % (self.address_string(), fmt % args))
+            sys.stdout.flush()
 
 
+# ---------------------------------------------------------------
+# Server class
+# ---------------------------------------------------------------
 class ReusableThreadingServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
-    """Threaded HTTP server that releases its port cleanly on restart."""
-
+    """Threaded server that releases its port cleanly on restart."""
     daemon_threads = True
     allow_reuse_address = True
 
 
+# ---------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------
 def port_is_free(port):
     """Return True when nothing is listening on the loopback at `port`."""
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as probe:
@@ -68,7 +148,8 @@ def find_free_port(start):
         if port_is_free(candidate):
             return candidate
     raise SystemExit(
-        "No free port between %d and %d." % (start, start + PORT_SEARCH_RANGE - 1)
+        "No free port between %d and %d."
+        % (start, start + PORT_SEARCH_RANGE - 1)
     )
 
 
@@ -94,20 +175,42 @@ def local_ip_addresses():
     return addresses
 
 
+def print_banner(project_root, port):
+    """Pretty startup banner."""
+    line = "=" * 62
+    print()
+    print(line)
+    print("  ARCADE 2.0  --  Local Development Server")
+    print(line)
+    print()
+    print("  Serving:  %s" % project_root)
+    print()
+    print("  Portal:   http://127.0.0.1:%d/" % port)
+    print("  Game:     http://127.0.0.1:%d/game/" % port)
+    for address in local_ip_addresses():
+        print("  LAN:      http://%s:%d/" % (address, port))
+    print()
+    print("  Press Ctrl+C to stop.")
+    print(line)
+    print()
+
+
+# ---------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------
 def main():
-    requested = int(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_PORT
+    # Parse port (skip --verbose if present)
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    requested = int(args[0]) if args else DEFAULT_PORT
     port = find_free_port(requested)
 
-    # Always serve the folder this script lives in, never the caller's cwd.
+    # Always serve the folder this script lives in
     project_root = os.path.dirname(os.path.abspath(__file__))
     os.chdir(project_root)
 
+    print_banner(project_root, port)
+
     with ReusableThreadingServer((HOST, port), GameRequestHandler) as httpd:
-        print("Serving %s" % project_root, flush=True)
-        print("Local:   http://127.0.0.1:%d/index.html" % port, flush=True)
-        for address in local_ip_addresses():
-            print("Sharing: http://%s:%d/index.html" % (address, port), flush=True)
-        print("Press Ctrl+C to stop.", flush=True)
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:

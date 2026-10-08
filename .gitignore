@@ -1,0 +1,26 @@
+# ARCADE 2.0 — Git ignore rules
+
+# Python bytecode cache
+__pycache__/
+*.pyc
+*.pyo
+
+# AG daily context logs (dev-only)
+temp/
+
+# Structure scan output
+website_structure.txt
+
+# OS metadata
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor folders
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Local logs
+*.log

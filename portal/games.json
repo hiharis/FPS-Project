@@ -1,0 +1,238 @@
+{
+  "portal": {
+    "name": "ARCADE 2.0",
+    "tagline": "Play. Instantly.",
+    "version": "1.0.0"
+  },
+  "categories": [
+    "All",
+    "Action",
+    "Shooter",
+    "Puzzle",
+    "Arcade",
+    "Strategy",
+    "Racing"
+  ],
+  "games": [
+    {
+      "id": "fps-shooter",
+      "title": "Tactical FPS",
+      "description": "Survive waves of the undead in this fast-paced browser shooter.",
+      "category": "Shooter",
+      "thumbnail": "thumbnails/fps-shooter.jpg",
+      "path": "../games/fps-shooter/index.html",
+      "status": "live",
+      "featured": true,
+      "tags": ["3D", "Zombies", "Weapons"]
+    },
+    {
+      "id": "placeholder-02",
+      "title": "Coming Soon",
+      "description": "A new game is on the way.",
+      "category": "Action",
+      "thumbnail": "thumbnails/placeholder.jpg",
+      "path": "",
+      "status": "coming-soon",
+      "featured": false,
+      "tags": []
+    },
+    {
+      "id": "placeholder-03",
+      "title": "Coming Soon",
+      "description": "A new game is on the way.",
+      "category": "Arcade",
+      "thumbnail": "thumbnails/placeholder.jpg",
+      "path": "",
+      "status": "coming-soon",
+      "featured": false,
+      "tags": []
+    },
+    {
+      "id": "placeholder-04",
+      "title": "Coming Soon",
+      "description": "A new game is on the way.",
+      "category": "Puzzle",
+      "thumbnail": "thumbnails/placeholder.jpg",
+      "path": "",
+      "status": "coming-soon",
+      "featured": false,
+      "tags": []
+    },
+    {
+      "id": "placeholder-05",
+      "title": "Coming Soon",
+      "description": "A new game is on the way.",
+      "category": "Strategy",
+      "thumbnail": "thumbnails/placeholder.jpg",
+      "path": "",
+      "status": "coming-soon",
+      "featured": false,
+      "tags": []
+    },
+    {
+      "id": "placeholder-06",
+      "title": "Coming Soon",
+      "description": "A new game is on the way.",
+      "category": "Racing",
+      "thumbnail": "thumbnails/placeholder.jpg",
+      "path": "",
+      "status": "coming-soon",
+      "featured": false,
+      "tags": []
+    },
+    {
+      "id": "placeholder-07",
+      "title": "Coming Soon",
+      "description": "A new game is on the way.",
+      "category": "Action",
+      "thumbnail": "thumbnails/placeholder.jpg",
+      "path": "",
+      "status": "coming-soon",
+      "featured": false,
+      "tags": []
+    },
+    {
+      "id": "placeholder-08",
+      "title": "Coming Soon",
+      "description": "A new game is on the way.",
+      "category": "Arcade",
+      "thumbnail": "thumbnails/placeholder.jpg",
+      "path": "",
+      "status": "coming-soon",
+      "featured": false,
+      "tags": []
+    },
+    {
+      "id": "placeholder-09",
+      "title": "Coming Soon",
+      "description": "A new game is on the way.",
+      "category": "Puzzle",
+      "thumbnail": "thumbnails/placeholder.jpg",
+      "path": "",
+      "status": "coming-soon",
+      "featured": false,
+      "tags": []
+    },
+    {
+      "id": "placeholder-10",
+      "title": "Coming Soon",
+      "description": "A new game is on the way.",
+      "category": "Shooter",
+      "thumbnail": "thumbnails/placeholder.jpg",
+      "path": "",
+      "status": "coming-soon",
+      "featured": false,
+      "tags": []
+    },
+    {
+      "id": "placeholder-11",
+      "title": "Coming Soon",
+      "description": "A new game is on the way.",
+      "category": "Action",
+      "thumbnail": "thumbnails/placeholder.jpg",
+      "path": "",
+      "status": "coming-soon",
+      "featured": false,
+      "tags": []
+    },
+    {
+      "id": "placeholder-12",
+      "title": "Coming Soon",
+      "description": "A new game is on the way.",
+      "category": "Strategy",
+      "thumbnail": "thumbnails/placeholder.jpg",
+      "path": "",
+      "status": "coming-soon",
+      "featured": false,
+      "tags": []
+    },
+    {
+      "id": "placeholder-13",
+      "title": "Coming Soon",
+      "description": "A new game is on the way.",
+      "category": "Arcade",
+      "thumbnail": "thumbnails/placeholder.jpg",
+      "path": "",
+      "status": "coming-soon",
+      "featured": false,
+      "tags": []
+    },
+    {
+      "id": "placeholder-14",
+      "title": "Coming Soon",
+      "description": "A new game is on the way.",
+      "category": "Racing",
+      "thumbnail": "thumbnails/placeholder.jpg",
+      "path": "",
+      "status": "coming-soon",
+      "featured": false,
+      "tags": []
+    },
+    {
+      "id": "placeholder-15",
+      "title": "Coming Soon",
+      "description": "A new game is on the way.",
+      "category": "Puzzle",
+      "thumbnail": "thumbnails/placeholder.jpg",
+      "path": "",
+      "status": "coming-soon",
+      "featured": false,
+      "tags": []
+    },
+    {
+      "id": "placeholder-16",
+      "title": "Coming Soon",
+      "description": "A new game is on the way.",
+      "category": "Action",
+      "thumbnail": "thumbnails/placeholder.jpg",
+      "path": "",
+      "status": "coming-soon",
+      "featured": false,
+      "tags": []
+    },
+    {
+      "id": "placeholder-17",
+      "title": "Coming Soon",
+      "description": "A new game is on the way.",
+      "category": "Arcade",
+      "thumbnail": "thumbnails/placeholder.jpg",
+      "path": "",
+      "status": "coming-soon",
+      "featured": false,
+      "tags": []
+    },
+    {
+      "id": "placeholder-18",
+      "title": "Coming Soon",
+      "description": "A new game is on the way.",
+      "category": "Shooter",
+      "thumbnail": "thumbnails/placeholder.jpg",
+      "path": "",
+      "status": "coming-soon",
+      "featured": false,
+      "tags": []
+    },
+    {
+      "id": "placeholder-19",
+      "title": "Coming Soon",
+      "description": "A new game is on the way.",
+      "category": "Strategy",
+      "thumbnail": "thumbnails/placeholder.jpg",
+      "path": "",
+      "status": "coming-soon",
+      "featured": false,
+      "tags": []
+    },
+    {
+      "id": "placeholder-20",
+      "title": "Coming Soon",
+      "description": "A new game is on the way.",
+      "category": "Racing",
+      "thumbnail": "thumbnails/placeholder.jpg",
+      "path": "",
+      "status": "coming-soon",
+      "featured": false,
+      "tags": []
+    }
+  ]
+}
