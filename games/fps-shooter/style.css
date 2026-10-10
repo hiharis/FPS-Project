@@ -983,7 +983,7 @@ canvas {
 #mainMenu {
     background-image:
         linear-gradient(rgba(10, 14, 20, 0.75), rgba(10, 14, 20, 0.92)),
-        url('images/backgroundmenu.jpg');
+        url('/games/fps-shooter/images/backgroundmenu.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -1024,7 +1024,7 @@ canvas {
 .map-card[data-map="2m.glb"] {
     background-image:
         linear-gradient(rgba(10, 14, 20, 0.55), rgba(10, 14, 20, 0.85)),
-        url('images/2mmap.png');
+        url('/games/fps-shooter/images/2mmap.png');
     background-size: cover;
     background-position: center;
     min-height: 120px;
@@ -1032,14 +1032,14 @@ canvas {
 .map-card[data-map="3m.glb"] {
     background-image:
         linear-gradient(rgba(10, 14, 20, 0.55), rgba(10, 14, 20, 0.85)),
-        url('images/3mmap.png');
+        url('/games/fps-shooter/images/3mmap.png');
     background-size: cover;
     background-position: center;
 }
 .map-card[data-map="4m.glb"] {
     background-image:
         linear-gradient(rgba(10, 14, 20, 0.55), rgba(10, 14, 20, 0.85)),
-        url('images/4mmap.png');
+        url('/games/fps-shooter/images/4mmap.png');
     background-size: cover;
     background-position: center;
 }

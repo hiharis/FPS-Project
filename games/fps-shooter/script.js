@@ -12,16 +12,35 @@
 window.addEventListener('error', e => console.error('GAME ERROR:', e.message, e.filename, e.lineno));
 window.addEventListener('unhandledrejection', e => console.error('GAME PROMISE:', e.reason));
 
+let currentLevel = 1;
+const MAX_LEVEL = 10;
+let enemiesRemainingInLevel = 0;
+let enemiesTotalInLevel = 0;
+
+function getEnemyCountForLevel(level) {
+    return 3 + (level - 1);  // Level 1 = 3, Level 10 = 12
+}
+
+function getEnemyDamage() {
+    return 5 + (currentLevel - 1) * 4;  // Level 1 = 5, Level 10 = 41
+}
+function getFireInterval() {
+    return Math.max(500, 2000 - (currentLevel - 1) * 165);  // Level 1 = 2000ms, Level 10 = 515ms
+}
+function getEnemyAccuracy() {
+    return Math.min(0.9, 0.4 + (currentLevel - 1) * 0.055);  // Level 1 = 40%, Level 10 = 90%
+}
+
 // ---------------------------------------------------------------------
 // Asset paths (relative to games/fps-shooter/)
 // ---------------------------------------------------------------------
 const PATHS = {
-    vendor:   'vendor/',
-    maps:     'maps/',
-    enemies:  'enemies/',
-    weapons:  'weapons/',
-    audio:    'audio/',
-    images:   'images/',
+    vendor:   '/games/fps-shooter/vendor/',
+    maps:     '/games/fps-shooter/maps/',
+    enemies:  '/games/fps-shooter/enemies/',
+    weapons:  '/games/fps-shooter/weapons/',
+    audio:    '/games/fps-shooter/audio/',
+    images:   '/games/fps-shooter/images/',
 };
 
 // Asset sizes for progress tracking (bytes, approximate)
@@ -40,6 +59,13 @@ const MAP_SIZES = {
     '3m.glb':      46000,
     '4m.glb':   13850000,
     'castle.glb': 3630000,
+};
+
+const MAP_ORIENTATION = {
+    '2m.glb':     { rotateX: 0,            rotateY: 0,            rotateZ: 0 },
+    '3m.glb':     { rotateX: 0,            rotateY: 0,            rotateZ: 0 },
+    '4m.glb':     { rotateX: 0,            rotateY: 0,            rotateZ: 0 },
+    'castle.glb': { rotateX: 0,            rotateY: 0,            rotateZ: 0 },
 };
 
 // ---------------------------------------------------------------------
@@ -269,49 +295,25 @@ function playProcedural(type) {
     osc.start(t); osc.stop(t + dur);
 }
 
+let currentFireSource = null;
+
 function startGunSound() {
-    if (!audioCtx) return;
-    resumeAudio();
-    if (activeGunSource) return;
-    if (gunAudioBuffer) {
-        try {
-            const src = audioCtx.createBufferSource();
-            const gain = audioCtx.createGain();
-            src.buffer = gunAudioBuffer;
-            src.loop = true;
-            gain.gain.setValueAtTime(0.65, audioCtx.currentTime);
-            src.connect(gain);
-            gain.connect(audioCtx.destination);
-            src.start(0);
-            activeGunSource = src;
-            activeGunGain = gain;
-        } catch (e) {
-            console.warn('Error starting gun audio:', e);
-        }
-    } else {
-        playProcedural('hit');
-    }
+    if (currentFireSource) return;
+    if (!audioCtx || !gunAudioBuffers) return;
+    const buf = gunAudioBuffers[selectedWeaponType] || gunAudioBuffers.rifle;
+    if (!buf) return;
+    currentFireSource = audioCtx.createBufferSource();
+    currentFireSource.buffer = buf;
+    currentFireSource.loop = true;
+    currentFireSource.connect(audioCtx.destination);
+    currentFireSource.start(0);
 }
 
 function stopGunSound() {
-    if (activeGunSource) {
-        const src = activeGunSource;
-        const gain = activeGunGain;
-        activeGunSource = null;
-        activeGunGain = null;
-        try {
-            if (gain && audioCtx) {
-                gain.gain.cancelScheduledValues(audioCtx.currentTime);
-                gain.gain.setValueAtTime(gain.gain.value, audioCtx.currentTime);
-                gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.02);
-                setTimeout(() => {
-                    try { src.stop(); src.disconnect(); gain.disconnect(); } catch (e) {}
-                }, 30);
-            } else {
-                src.stop();
-                src.disconnect();
-            }
-        } catch (e) {}
+    if (currentFireSource) {
+        try { currentFireSource.stop(0); } catch(e) {}
+        try { currentFireSource.disconnect(); } catch(e) {}
+        currentFireSource = null;
     }
 }
 
@@ -815,18 +817,18 @@ dom.acceptTosBtn?.addEventListener('click', () => {
 // Weapon selection
 // ---------------------------------------------------------------------
 const weaponStats = {
-    rifle:   { fireRate: 150, damage: 1, mag: 30, name: 'GUN009 ASSAULT' },
-    smg:     { fireRate: 75,  damage: 1, mag: 45, name: 'GUN010 MACHINE GUN' },
-    m16:     { fireRate: 110, damage: 1, mag: 30, name: 'GUN007 RIFLE' },
-    barrett: { fireRate: 700, damage: 3, mag: 5,  name: 'GUN008 SNIPER' },
-    pistol:  { fireRate: 250, damage: 1, mag: 12, name: 'GUN007 SIDEARM' },
+    rifle:   { fireRate: 150, damage: 1, mag: 30, name: 'AK-47' },
+    smg:     { fireRate: 75,  damage: 1, mag: 45, name: 'MP5' },
+    m16:     { fireRate: 110, damage: 1, mag: 30, name: 'M16' },
+    barrett: { fireRate: 700, damage: 3, mag: 5,  name: 'Sniper' },
+    pistol:  { fireRate: 250, damage: 1, mag: 12, name: 'Pistol' },
 };
 const weaponButtons = {
-    rifle:   [dom.btnRifle,   dom.btnRifleDeath],
-    smg:     [dom.btnSMG,     dom.btnSMGDeath],
-    m16:     [dom.btnM16,     dom.btnM16Death],
-    barrett: [dom.btnBarrett, dom.btnBarrettDeath],
-    pistol:  [dom.btnPistol,  dom.btnPistolDeath],
+    rifle:   [dom.btnRifle,   dom.btnRifleDeath,   pauseRifle],
+    smg:     [dom.btnSMG,     dom.btnSMGDeath,     pauseSMG],
+    m16:     [dom.btnM16,     dom.btnM16Death,     pauseM16],
+    barrett: [dom.btnBarrett, dom.btnBarrettDeath, pauseBarrett],
+    pistol:  [dom.btnPistol,  dom.btnPistolDeath,  pausePistol],
 };
 
 function selectWeapon(type) {
@@ -843,6 +845,15 @@ function selectWeapon(type) {
     (weaponButtons[type] || []).forEach(b => b && b.classList.add('selected'));
     updateWeaponVisibility();
     updateAmmoHUD();
+
+    const iconEl = document.getElementById('weaponIcon');
+    if (iconEl) {
+        iconEl.style.backgroundImage = "url('images/23T.png')";
+        iconEl.style.backgroundSize = 'contain';
+        iconEl.style.backgroundRepeat = 'no-repeat';
+        iconEl.style.width = '60px';
+        iconEl.style.height = '30px';
+    }
 }
 
 function updateWeaponVisibility() {
@@ -1023,21 +1034,9 @@ function shootWeapon() {
     lastFireTime = now;
 
     ammo--; updateAmmoHUD();
-    const buf = gunAudioBuffers[selectedWeaponType] || gunAudioBuffers.rifle;
-    playBuffer(buf);
+    // Audio is handled by the looping startGunSound() / stopGunSound() system.
+    // Do NOT create per-shot BufferSourceNodes here — they orphan and overlap.
 
-    function playBuffer(b) {
-        if (!audioCtx || !b) return;
-        try {
-            const src = audioCtx.createBufferSource();
-            const gain = audioCtx.createGain();
-            src.buffer = b;
-            gain.gain.setValueAtTime(0.65, audioCtx.currentTime);
-            src.connect(gain);
-            gain.connect(audioCtx.destination);
-            src.start(0);
-        } catch (e) {}
-    }
     if (ammo <= 0) {
         stopGunSound();
         triggerReload();
@@ -1104,8 +1103,37 @@ function applyDamageToEnemy(enemy, index) {
         score += 150; kills++;
         reserveAmmo = Math.min(180, reserveAmmo + 15);
         updateScoreHUD(); updateAmmoHUD();
-        spawnEnemy();
+        
+        enemiesRemainingInLevel--;
+        updateLevelHUD();
+
+        if (enemiesRemainingInLevel <= 0) {
+            if (currentLevel < MAX_LEVEL) {
+                currentLevel++;
+                const levelDisplay = document.getElementById('levelDisplay');
+                if (levelDisplay) levelDisplay.innerHTML = '<div style="font-size:16px; font-weight:bold; color:#4ade80;">LEVEL COMPLETE</div>';
+                setTimeout(() => {
+                    if (levelDisplay) levelDisplay.innerHTML = '<div class="level-label">LEVEL <span id="levelNum">' + currentLevel + '</span> / 10</div><div class="level-progress"><div class="level-progress-fill" id="levelProgressFill"></div></div>';
+                    enemiesTotalInLevel = getEnemyCountForLevel(currentLevel);
+                    enemiesRemainingInLevel = enemiesTotalInLevel;
+                    for (let i = 0; i < enemiesTotalInLevel; i++) spawnEnemy();
+                    updateLevelHUD();
+                }, 2000);
+            } else {
+                const vs = document.getElementById('victoryScreen');
+                if (vs) vs.style.display = 'flex';
+                gameActive = false;
+            }
+        }
     }
+}
+
+function updateLevelHUD() {
+    const ln = document.getElementById('levelNum');
+    if (ln) ln.textContent = currentLevel;
+    const pct = enemiesTotalInLevel > 0 ? (enemiesRemainingInLevel / enemiesTotalInLevel) * 100 : 100;
+    const fill = document.getElementById('levelProgressFill');
+    if (fill) fill.style.width = pct + '%';
 }
 
 function disposeEnemy(enemy) {
@@ -1154,6 +1182,10 @@ function shootEnemyProjectile(enemy) {
     const projectile = getProjectileMesh();
     projectile.position.copy(start);
     const velocity = new THREE.Vector3().subVectors(camera.position, start).normalize().multiplyScalar(0.24);
+    const spread = (1 - getEnemyAccuracy()) * 0.3;
+    velocity.x += (Math.random() - 0.5) * spread;
+    velocity.y += (Math.random() - 0.5) * spread;
+    velocity.z += (Math.random() - 0.5) * spread;
     scene.add(projectile);
     enemyProjectiles.push({ mesh: projectile, velocity, life: 140 });
 }
@@ -1185,7 +1217,7 @@ function updateProjectiles(dtScale) {
         }
 
         if (pr.mesh.position.distanceTo(camera.position) < 0.9) {
-            health -= 10;
+            health -= getEnemyDamage();
             lastDamageTime = performance.now();
             triggerGooHit();
             updateHealthHUD();
@@ -1227,8 +1259,10 @@ function rayHitsMap(px, py, pz, dx, dz, dist) {
 function tryMove(dx, dz) {
     const px = camera.position.x;
     const pz = camera.position.z;
-    const pyFeet = groundY + 0.25;
-    const pyChest = groundY + 1.1;
+    // Cast two rays: one at ankle height (above floor clutter), one at chest height.
+    // Using groundY + larger offsets avoids terrain bumps blocking movement.
+    const pyFeet  = groundY + 0.4;   // ankle — above terrain noise
+    const pyChest = groundY + 1.3;   // chest
     let movedX = false, movedZ = false;
     if (Math.abs(dx) > 0.0001) {
         const signX = Math.sign(dx);
@@ -1631,9 +1665,12 @@ function onMapError() {
 
 function onMapLoaded(gltf) {
     const mapRoot = gltf.scene;
-    
-    // FIX 3: Robust Map Setup (Center, Rotate, Calculate precise bounds)
+
+    const orientation = MAP_ORIENTATION[selectedMapFile] || { rotateX: 0, rotateY: 0, rotateZ: 0 };
+    mapRoot.rotation.set(orientation.rotateX, orientation.rotateY, orientation.rotateZ);
     mapRoot.updateMatrixWorld(true);
+
+    // FIX 3: Robust Map Setup (Center, Rotate, Calculate precise bounds)
     let rawBox = new THREE.Box3().setFromObject(mapRoot);
     let rawSize = rawBox.getSize(new THREE.Vector3());
 
@@ -1690,17 +1727,36 @@ function onMapLoaded(gltf) {
     mapRoot.userData.isMapPiece = true;
     scene.add(mapRoot);
 
-    // Raycast straight down from the center to find the exact ground level
     const cx = (mapBounds.minX + mapBounds.maxX) / 2;
     const cz = (mapBounds.minZ + mapBounds.maxZ) / 2;
-    const downRay = new THREE.Raycaster(new THREE.Vector3(cx, wholeBox.max.y + 10, cz), new THREE.Vector3(0, -1, 0));
-    const hits = downRay.intersectObjects(mapColliderMeshes, true);
     
-    if (hits.length > 0) {
-        groundY = hits[0].point.y;
-    } else {
-        groundY = wholeBox.min.y + 0.02; // fallback
+    // Find true ground Y by finding the lowest flat mesh that isn't the absolute bottom bounding box
+    // (ignoring any invisible trigger volumes that might be at min.y)
+    let groundY = wholeBox.min.y + 0.05;
+    let lowestFloorY = Infinity;
+    
+    for (let node of groundMeshes) {
+        const bbox = new THREE.Box3().setFromObject(node);
+        const size = bbox.getSize(new THREE.Vector3());
+        
+        // A valid floor piece must be somewhat large (not a tiny prop step)
+        if (size.x > 2 && size.z > 2) {
+            const yLevel = bbox.max.y;
+            // Ignore anything that is exactly at the bottom of the map's bounding box 
+            // as that's usually an invisible bounds box
+            if (yLevel > wholeBox.min.y + 0.5) {
+                if (yLevel < lowestFloorY) {
+                    lowestFloorY = yLevel;
+                }
+            }
+        }
     }
+    
+    if (lowestFloorY !== Infinity) {
+        groundY = lowestFloorY + 0.05;
+    }
+    
+    console.log('Ground Y set from lowest valid floor mesh to:', groundY.toFixed(4));
 
     camera.position.set(cx, groundY + PLAYER_EYE_OFFSET, cz);
     lastSafePosition.x = cx; lastSafePosition.y = groundY + PLAYER_EYE_OFFSET; lastSafePosition.z = cz;
@@ -1751,8 +1807,14 @@ function startGame(e) {
     lastSafePosition.x = cx; lastSafePosition.y = groundY + PLAYER_EYE_OFFSET; lastSafePosition.z = cz;
     blockedMovementFrames = 0;
 
-    const n = isMobile ? 4 : 6;
-    for (let i = 0; i < n; i++) spawnEnemy();
+    currentLevel = 1;
+    enemiesTotalInLevel = getEnemyCountForLevel(currentLevel);
+    enemiesRemainingInLevel = enemiesTotalInLevel;
+    for (let i = 0; i < enemiesTotalInLevel; i++) spawnEnemy();
+    
+    const levelDisplay = document.getElementById('levelDisplay');
+    if (levelDisplay) levelDisplay.innerHTML = '<div class="level-label">LEVEL <span id="levelNum">1</span> / 10</div><div class="level-progress"><div class="level-progress-fill" id="levelProgressFill"></div></div>';
+    updateLevelHUD();
 
     gameActive = true;
     try { if (!isMobile) document.body.requestPointerLock?.(); } catch {}
@@ -1872,19 +1934,9 @@ function spawnEnemy() {
     healthBar.sprite.position.y = ENEMY_HEIGHT + 0.35;
     group.add(healthBar.sprite);
 
-    // Position in world
+    // Position in world at the known ground level (set once by map loader)
     const pt = randomSpawnPoint();
     group.position.set(pt.x, groundY, pt.z);
-
-    // Fix: raycast down to find the real floor and place enemy on it
-    const _rayStart = new THREE.Vector3(pt.x, 100, pt.z);
-    const _rayDir = new THREE.Vector3(0, -1, 0);
-    const _groundRay = new THREE.Raycaster(_rayStart, _rayDir, 0, 200);
-    const _groundHits = _groundRay.intersectObjects(mapColliderMeshes, true);
-    if (_groundHits.length > 0) {
-        group.position.y = _groundHits[0].point.y;
-    }
-    console.log('Spawned enemy at Y:', group.position.y.toFixed(2));
 
     scene.add(group);
 
@@ -2245,7 +2297,7 @@ function updateEnemies(dtScale, nowMs) {
         }
 
         // ---------- SHOOTING ----------
-        if (e.state === 'attack' && nowMs - e.lastShotTime > 1200) {
+        if (e.state === 'attack' && nowMs - e.lastShotTime > getFireInterval()) {
             e.lastShotTime = nowMs;
             const headY = e.group.position.y + ENEMY_HEIGHT * 0.7;
             _v1.set(e.group.position.x, headY, e.group.position.z);
@@ -2400,10 +2452,10 @@ function updateMenuModel() {
 }
 
 console.log('🎮 FPS Game loaded');
-})();
 
 // --- TIME OF DAY ---
 function setTimeOfDay(mode) {
+    if (typeof scene === 'undefined' || !scene) return;
     const hemi = scene.children.find(c => c.isHemisphereLight);
     const dir  = scene.children.find(c => c.isDirectionalLight);
     const amb  = scene.children.find(c => c.isAmbientLight);
@@ -2424,10 +2476,15 @@ function setTimeOfDay(mode) {
 document.getElementById('timeOfDayDay')?.addEventListener('click', () => setTimeOfDay('day'));
 document.getElementById('timeOfDayNight')?.addEventListener('click', () => setTimeOfDay('night'));
 
-// Apply saved preference on boot
-setTimeOfDay(localStorage.getItem('timeOfDay') || 'day');
+// Apply saved preference on boot - wrapped in setTimeout to ensure scene is built
+setTimeout(() => {
+    setTimeOfDay(localStorage.getItem('timeOfDay') || 'day');
+}, 500);
+
 document.getElementById('victoryRestartBtn')?.addEventListener('click', () => {
     const vs = document.getElementById('victoryScreen');
     if (vs) vs.style.display = 'none';
     show(dom.mainMenu, 'flex');
 });
+
+})();
